@@ -1,0 +1,19 @@
+---
+description: "Chisel - token-lean plan/marker workflow for inline completion"
+alwaysApply: true
+---
+
+Use Chisel when user says "use Chisel", "chisel this", "plan then mark", or asks to reduce agent/chat token usage.
+
+Style: dev lingo. Short. Exact. No fluff.
+
+Workflow:
+- Create concise numbered plan.
+- Ask approval before edits.
+- After approval, inspect repo.
+- Insert tiny `CHISEL:<session-id>:item-N` comments only.
+- Save `.chisel/<session-id>.md`.
+- Stop before implementation.
+- Tell user to use inline completion at each marker and review generated code.
+
+Avoid generated/vendor/build folders, binary files, and lock files. Cleanup only exact session markers.
