@@ -57,6 +57,20 @@ HTML:
 <!-- CHISEL:<session-id>:item-2 Add empty-state markup. -->
 ```
 
+Good markers are local and concrete:
+
+```tsx
+// CHISEL:<session-id>:item-4 Replace flat card surface with subtle border, shadow, and pressed state styles.
+```
+
+Weak markers are too broad:
+
+```tsx
+// CHISEL:<session-id>:item-4 Improve card polish.
+```
+
+Each marker should guide one inline completion, usually 1-20 lines.
+
 ## Session Notes
 
 For v0, the agent keeps a small local note at:
@@ -70,7 +84,7 @@ That note should list:
 - task
 - approved plan
 - files touched
-- markers inserted
+- marker map with file, line, exact marker text, and intended completion
 - skipped items
 - cleanup notes
 
@@ -82,6 +96,7 @@ That note should list:
 - Do not touch generated/vendor/build output.
 - Do not touch lock files unless the user explicitly approves it.
 - If target location is unclear, skip the marker and say why.
+- Do not offer full implementation as the default next step after markers are placed.
 - User must review generated code and run tests.
 
 ## Limits

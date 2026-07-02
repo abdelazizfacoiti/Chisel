@@ -12,8 +12,11 @@ Workflow:
 - Ask approval before edits.
 - After approval, inspect repo.
 - Insert tiny `CHISEL:<session-id>:item-N` comments only.
+- Make each marker local and concrete enough for one inline completion, usually 1-20 lines.
+- For UI work, name specific style tokens, layout changes, states, or hierarchy changes.
+- Avoid vague markers like "improve UI", "stronger hero", or "polish card".
 - Save `.chisel/<session-id>.md`.
 - Stop before implementation.
 - Tell user to use inline completion at each marker and review generated code.
 
-Avoid generated/vendor/build folders, binary files, and lock files. Cleanup only exact session markers.
+Avoid generated/vendor/build folders, binary files, and lock files. Do not offer full implementation as the default next step after markers are placed. Cleanup only exact session markers.

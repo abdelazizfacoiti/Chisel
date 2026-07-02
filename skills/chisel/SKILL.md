@@ -42,15 +42,24 @@ Bad:
 
 - Tiny comments only.
 - Every marker includes session id and item id.
+- One marker should guide one local completion, usually 1-20 lines.
+- Marker text must name the concrete code move: variable, prop, style token, branch, validation rule, component state, or test case.
+- Prefer imperative verbs: add, replace, extract, guard, map, memoize, render, validate.
+- For UI work, include concrete visual intent: spacing value, component state, hierarchy, color role, typography role, or interaction behavior.
 - Never overwrite code.
 - Never insert into generated/vendor/build folders.
 - Never touch lock files unless user explicitly says so.
 - If unsure where an item belongs, skip it and say why.
+- Avoid vague markers like "improve UI", "make better", "stronger hero treatment", or "polish card".
 
 Examples:
 
 ```ts
 // CHISEL:20260702153000-a1b2c3:item-2 Add email validation before submit.
+```
+
+```tsx
+// CHISEL:20260702153000-a1b2c3:item-4 Replace flat card surface with subtle border, shadow, and pressed state styles.
 ```
 
 ```py
@@ -64,6 +73,27 @@ Examples:
 ## Cleanup
 
 Remove only comments containing exact `CHISEL:<session-id>`. Do not remove user comments or markers from other sessions.
+
+## Session Note
+
+Write `.chisel/<session-id>.md` with:
+- task
+- approved plan
+- files touched
+- marker map with file, line, exact marker text, and intended completion
+- skipped items with reason
+- cleanup: remove lines containing `CHISEL:<session-id>`
+
+## Response Rules
+
+After inserting markers, report:
+- session id
+- files touched
+- marker list with line numbers
+- skipped items
+- next action: "Use inline completion at each marker, review diff, run tests."
+
+Do not offer to fully implement as the default next step. If user asks what next, recommend a second marker pass or cleanup.
 
 ## Limits
 
