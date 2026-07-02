@@ -24,6 +24,13 @@ The best v0 lives where developers already ask for code: Codex, Claude Code, Git
 
 ## Install Into A Repo
 
+Fast path with npx after this repo is pushed to GitHub:
+
+```bash
+npx -y github:<your-github-user-or-org>/Chisel -- --only codex
+npx -y github:<your-github-user-or-org>/Chisel -- --only copilot
+```
+
 Copy the provider file for your tool into the target project:
 
 | Tool | File to copy |
@@ -42,31 +49,31 @@ Ready-to-copy versions live under `providers/`.
 TypeScript, JavaScript, Java, C#, Kotlin:
 
 ```ts
-// CHISEL:<session-id>:item-2 Add email validation before submit.
+// TODO(chisel:item-2) CHISEL:<session-id> Add email validation before submit.
 ```
 
 Python, Shell, Ruby:
 
 ```py
-# CHISEL:<session-id>:item-2 Add email validation before submit.
+# TODO(chisel:item-2) CHISEL:<session-id> Add email validation before submit.
 ```
 
 HTML:
 
 ```html
-<!-- CHISEL:<session-id>:item-2 Add empty-state markup. -->
+<!-- TODO(chisel:item-2) CHISEL:<session-id> Add empty-state markup. -->
 ```
 
 Good markers are local and concrete:
 
 ```tsx
-// CHISEL:<session-id>:item-4 Replace flat card surface with subtle border, shadow, and pressed state styles.
+// TODO(chisel:item-4) CHISEL:<session-id> Replace flat card surface with subtle border, shadow, and pressed state styles.
 ```
 
 Weak markers are too broad:
 
 ```tsx
-// CHISEL:<session-id>:item-4 Improve card polish.
+// TODO(chisel:item-4) CHISEL:<session-id> Improve card polish.
 ```
 
 Each marker should guide one inline completion, usually 1-20 lines.
@@ -82,11 +89,10 @@ For v0, the agent keeps a small local note at:
 That note should list:
 
 - task
-- approved plan
 - files touched
-- marker map with file, line, exact marker text, and intended completion
+- item order with file and line
 - skipped items
-- cleanup notes
+- cleanup marker
 
 ## Safety Rules
 

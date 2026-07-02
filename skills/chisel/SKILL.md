@@ -36,7 +36,7 @@ Bad:
 6. Insert minimal comments using correct language syntax.
 7. Save a local note at `.chisel/<session-id>.md`.
 8. Stop. Do not implement full code.
-9. Tell user to use GitHub Copilot inline completion at each `CHISEL:<session-id>:item-N` marker.
+9. Tell user to use GitHub Copilot inline completion at each `TODO(chisel:item-N) CHISEL:<session-id>` marker.
 
 ## Marker Rules
 
@@ -55,19 +55,19 @@ Bad:
 Examples:
 
 ```ts
-// CHISEL:20260702153000-a1b2c3:item-2 Add email validation before submit.
+// TODO(chisel:item-2) CHISEL:20260702153000-a1b2c3 Add email validation before submit.
 ```
 
 ```tsx
-// CHISEL:20260702153000-a1b2c3:item-4 Replace flat card surface with subtle border, shadow, and pressed state styles.
+// TODO(chisel:item-4) CHISEL:20260702153000-a1b2c3 Replace flat card surface with subtle border, shadow, and pressed state styles.
 ```
 
 ```py
-# CHISEL:20260702153000-a1b2c3:item-2 Add email validation before submit.
+# TODO(chisel:item-2) CHISEL:20260702153000-a1b2c3 Add email validation before submit.
 ```
 
 ```html
-<!-- CHISEL:20260702153000-a1b2c3:item-2 Add empty-state markup. -->
+<!-- TODO(chisel:item-2) CHISEL:20260702153000-a1b2c3 Add empty-state markup. -->
 ```
 
 ## Cleanup
@@ -78,11 +78,12 @@ Remove only comments containing exact `CHISEL:<session-id>`. Do not remove user 
 
 Write `.chisel/<session-id>.md` with:
 - task
-- approved plan
 - files touched
-- marker map with file, line, exact marker text, and intended completion
+- item order with file and line
 - skipped items with reason
 - cleanup: remove lines containing `CHISEL:<session-id>`
+
+Do not duplicate the full marker instructions in the session note. Source comments are the working surface.
 
 ## Response Rules
 

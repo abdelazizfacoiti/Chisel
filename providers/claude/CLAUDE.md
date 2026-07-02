@@ -7,8 +7,8 @@ Process:
 2. Include likely files/symbols.
 3. Ask for approval.
 4. After approval, inspect repo.
-5. Insert tiny `CHISEL:<session-id>:item-N` comments at target locations.
-6. Save `.chisel/<session-id>.md`.
+5. Insert tiny `TODO(chisel:item-N) CHISEL:<session-id>` comments at target locations using language-native comment syntax.
+6. Save minimal `.chisel/<session-id>.md` with task, files touched, item order, skipped items, and cleanup marker.
 7. Stop before writing full code.
 8. Tell user to use Copilot inline completion at each marker.
 

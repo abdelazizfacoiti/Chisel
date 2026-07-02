@@ -1,6 +1,38 @@
 # Install Chisel Instructions
 
-Chisel v0 is an instruction pack, not a standalone app.
+Chisel v0 is an instruction pack, not a standalone app. The included `chisel` command only installs provider instruction files.
+
+## One-liner With npx
+
+From the repo where you want Chisel active:
+
+```bash
+npx -y github:<your-github-user-or-org>/Chisel -- --only codex
+```
+
+Use another provider id when needed:
+
+```bash
+npx -y github:<your-github-user-or-org>/Chisel -- --only copilot
+npx -y github:<your-github-user-or-org>/Chisel -- --only cursor
+npx -y github:<your-github-user-or-org>/Chisel -- --all
+```
+
+For local testing from this folder:
+
+```bash
+node bin/chisel-install.js --only codex --target /path/to/project --dry-run
+```
+
+Flags:
+
+- `--only <provider>` installs one provider.
+- `--all` installs every provider file.
+- `--target <path>` chooses the project directory. Default: current directory.
+- `--dry-run` prints writes without touching files.
+- `--force` overwrites existing provider files.
+
+Provider ids: `copilot`, `codex`, `claude`, `gemini`, `cursor`, `opencode`.
 
 Copy one or more provider files into the repo where you want the workflow active.
 

@@ -11,11 +11,11 @@ Workflow:
 - Create concise numbered plan.
 - Ask approval before edits.
 - After approval, inspect repo.
-- Insert tiny `CHISEL:<session-id>:item-N` comments only.
+- Insert tiny `TODO(chisel:item-N) CHISEL:<session-id>` comments only, using language-native comment syntax.
 - Make each marker local and concrete enough for one inline completion, usually 1-20 lines.
 - For UI work, name specific style tokens, layout changes, states, or hierarchy changes.
 - Avoid vague markers like "improve UI", "stronger hero", or "polish card".
-- Save `.chisel/<session-id>.md`.
+- Save minimal `.chisel/<session-id>.md` with task, files touched, item order, skipped items, and cleanup marker.
 - Stop before implementation.
 - Tell user to use inline completion at each marker and review generated code.
 

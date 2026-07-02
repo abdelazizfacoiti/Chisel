@@ -1,0 +1,24 @@
+{
+  "name": "chisel-instructions",
+  "version": "0.1.0",
+  "description": "Instruction pack for token-lean agent planning and inline completion markers.",
+  "license": "MIT",
+  "type": "commonjs",
+  "bin": {
+    "chisel": "./bin/chisel-install.js"
+  },
+  "files": [
+    "AGENTS.md",
+    "README.md",
+    "install.md",
+    "bin/",
+    "providers/",
+    "skills/"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "check": "node --check bin/chisel-install.js"
+  }
+}
