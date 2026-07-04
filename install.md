@@ -1,64 +1,69 @@
-# Install Chisel Instructions
+# Install Chisel
 
-Chisel v0 is an instruction pack, not a standalone app. The included `chisel` command only installs provider instruction and command files.
+Chisel v0 is an instruction and command pack, not a standalone app. The `chisel` command only installs provider files into a project.
 
-## One-liner With npx
+## One-Liner
 
-From the repo where you want Chisel active:
-
-```bash
-npx -y github:<your-github-user-or-org>/Chisel -- --only codex
-```
-
-Use another provider id when needed:
+Run from the repo where you want Chisel active:
 
 ```bash
-npx -y github:<your-github-user-or-org>/Chisel -- --only copilot
-npx -y github:<your-github-user-or-org>/Chisel -- --only cursor
-npx -y github:<your-github-user-or-org>/Chisel -- --all
+npx -y github:abdelazizfacoiti/Chisel -- --only codex
 ```
 
-For local testing from this folder:
+Install another provider:
+
+```bash
+npx -y github:abdelazizfacoiti/Chisel -- --only copilot
+npx -y github:abdelazizfacoiti/Chisel -- --only claude
+npx -y github:abdelazizfacoiti/Chisel -- --only cursor
+npx -y github:abdelazizfacoiti/Chisel -- --all
+```
+
+Local testing from a Chisel clone:
 
 ```bash
 node bin/chisel-install.js --only codex --target /path/to/project --dry-run
 ```
 
-Flags:
+## Flags
 
 - `--only <provider>` installs one provider.
 - `--all` installs every provider file.
 - `--target <path>` chooses the project directory. Default: current directory.
 - `--dry-run` prints writes without touching files.
 - `--force` overwrites existing provider files.
+- `--with-codex-prompt` also installs deprecated Codex custom prompt support at `~/.codex/prompts/chisel.md`.
 
 Provider ids: `copilot`, `codex`, `claude`, `gemini`, `cursor`, `opencode`.
 
-Codex note: documented reusable workflows are skills, not repo-local slash commands. The Codex install writes `.agents/skills/chisel/SKILL.md`. Invoke with `$chisel`, `/skills`, or "use Chisel". If you still want a deprecated user-local prompt, add `--with-codex-prompt` and restart Codex; it appears as `/prompts:chisel`.
+## What Gets Installed
 
-Copy one or more provider files into the repo where you want the workflow active.
+| Provider | Files |
+|---|---|
+| `codex` | `AGENTS.md`, `.codex/config.toml`, `.agents/skills/chisel/SKILL.md` |
+| `copilot` | `.github/copilot-instructions.md`, `.github/prompts/chisel.prompt.md` |
+| `claude` | `CLAUDE.md`, `.claude/commands/chisel.md` |
+| `gemini` | `GEMINI.md` |
+| `cursor` | `.cursor/rules/chisel.mdc` |
+| `opencode` | `.opencode/AGENTS.md` |
 
-## GitHub Copilot
-
-```bash
-mkdir -p .github
-cp Chisel/providers/copilot/copilot-instructions.md .github/copilot-instructions.md
-mkdir -p .github/prompts
-cp Chisel/providers/copilot/.github/prompts/chisel.prompt.md .github/prompts/chisel.prompt.md
-```
-
-In VS Code Copilot Chat, this should expose the `chisel` prompt file in the prompt/command picker.
+The repo also includes `.codex-plugin/plugin.json` for packaging Chisel as a Codex plugin.
 
 ## Codex
 
-```bash
-cp Chisel/providers/codex/AGENTS.md AGENTS.md
-mkdir -p .codex .agents/skills/chisel
-cp Chisel/providers/codex/.codex/config.toml .codex/config.toml
-cp Chisel/skills/chisel/SKILL.md .agents/skills/chisel/SKILL.md
+Codex reusable workflows are skills. Chisel installs a repo skill here:
+
+```text
+.agents/skills/chisel/SKILL.md
 ```
 
-Then use one of:
+Install:
+
+```bash
+npx -y github:abdelazizfacoiti/Chisel -- --only codex
+```
+
+Use one of:
 
 ```text
 $chisel improve the checkout form validation
@@ -69,58 +74,97 @@ use Chisel for this task: improve the checkout form validation
 Optional deprecated prompt command:
 
 ```bash
-mkdir -p ~/.codex/prompts
-cp Chisel/providers/codex/.codex/prompts/chisel.md ~/.codex/prompts/chisel.md
+npx -y github:abdelazizfacoiti/Chisel -- --only codex --with-codex-prompt
 ```
 
-After restart, invoke it as:
+Restart Codex, then invoke:
 
 ```text
 /prompts:chisel improve the checkout form validation
 ```
 
-Codex plugin-shaped metadata is also available at:
+Important: Chisel does not claim a native repo-local `/chisel` command in Codex. Codex custom prompts are user-local and deprecated.
+
+## GitHub Copilot
+
+Install:
+
+```bash
+npx -y github:abdelazizfacoiti/Chisel -- --only copilot
+```
+
+Files:
 
 ```text
-Chisel/providers/codex/.codex-plugin/plugin.json
+.github/copilot-instructions.md
+.github/prompts/chisel.prompt.md
 ```
+
+In VS Code Copilot Chat, the prompt file should be available through the prompt/command picker where prompt files are supported. Exact slash behavior depends on your VS Code and Copilot version.
 
 ## Claude Code
 
+Install:
+
 ```bash
-cp Chisel/providers/claude/CLAUDE.md CLAUDE.md
-mkdir -p .claude/commands
-cp Chisel/providers/claude/.claude/commands/chisel.md .claude/commands/chisel.md
+npx -y github:abdelazizfacoiti/Chisel -- --only claude
 ```
 
-Then use:
+Files:
+
+```text
+CLAUDE.md
+.claude/commands/chisel.md
+```
+
+Use:
 
 ```text
 /chisel improve the checkout form validation
 ```
 
-Or install the skill body from:
-
-```text
-Chisel/skills/chisel/SKILL.md
-```
-
 ## Gemini
 
+Install:
+
 ```bash
-cp Chisel/providers/gemini/GEMINI.md GEMINI.md
+npx -y github:abdelazizfacoiti/Chisel -- --only gemini
+```
+
+Then say:
+
+```text
+use Chisel for this task: improve the checkout form validation
 ```
 
 ## Cursor
 
+Install:
+
 ```bash
-mkdir -p .cursor/rules
-cp Chisel/providers/cursor/chisel.mdc .cursor/rules/chisel.mdc
+npx -y github:abdelazizfacoiti/Chisel -- --only cursor
+```
+
+Then say:
+
+```text
+use Chisel for this task: improve the checkout form validation
 ```
 
 ## opencode
 
+Install:
+
 ```bash
-mkdir -p .opencode
-cp Chisel/providers/opencode/AGENTS.md .opencode/AGENTS.md
+npx -y github:abdelazizfacoiti/Chisel -- --only opencode
 ```
+
+Then say:
+
+```text
+use Chisel for this task: improve the checkout form validation
+```
+
+## Manual Copy
+
+If you do not want `npx`, copy the files listed in "What Gets Installed" from `providers/` and `skills/` into your target repo.
