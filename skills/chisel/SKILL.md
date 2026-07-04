@@ -36,11 +36,11 @@ Bad:
 6. Insert minimal comments using correct language syntax.
 7. Save a local note at `.chisel/<session-id>.md`.
 8. Stop. Do not implement full code.
-9. Tell user to use GitHub Copilot inline completion at each `TODO(chisel:item-N) CHISEL:<session-id>` marker.
+9. Tell user to use inline completion or manual edit at each `TODO(chisel:item-N) CHISEL:<session-id>` marker.
 
 ## Marker Rules
 
-- Tiny comments only.
+- Tiny comments when possible, if not add enough context to avoid ambiguity.
 - Every marker includes session id and item id.
 - One marker should guide one local completion, usually 1-20 lines.
 - Marker text must name the concrete code move: variable, prop, style token, branch, validation rule, component state, or test case.

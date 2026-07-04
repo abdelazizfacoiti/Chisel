@@ -9,6 +9,7 @@ const ROOT = path.resolve(__dirname, '..');
 const TARGETS = {
   copilot: [
     ['providers/copilot/copilot-instructions.md', '.github/copilot-instructions.md'],
+    ['providers/copilot/.github/prompts/chisel.prompt.md', '.github/prompts/chisel.prompt.md'],
   ],
   codex: [
     ['providers/codex/AGENTS.md', 'AGENTS.md'],
@@ -17,6 +18,7 @@ const TARGETS = {
   ],
   claude: [
     ['providers/claude/CLAUDE.md', 'CLAUDE.md'],
+    ['providers/claude/.claude/commands/chisel.md', '.claude/commands/chisel.md'],
   ],
   gemini: [
     ['providers/gemini/GEMINI.md', 'GEMINI.md'],

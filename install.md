@@ -1,6 +1,6 @@
 # Install Chisel Instructions
 
-Chisel v0 is an instruction pack, not a standalone app. The included `chisel` command only installs provider instruction files.
+Chisel v0 is an instruction pack, not a standalone app. The included `chisel` command only installs provider instruction and command files.
 
 ## One-liner With npx
 
@@ -41,7 +41,11 @@ Copy one or more provider files into the repo where you want the workflow active
 ```bash
 mkdir -p .github
 cp Chisel/providers/copilot/copilot-instructions.md .github/copilot-instructions.md
+mkdir -p .github/prompts
+cp Chisel/providers/copilot/.github/prompts/chisel.prompt.md .github/prompts/chisel.prompt.md
 ```
+
+In VS Code Copilot Chat, this should expose the `chisel` prompt file in the prompt/command picker.
 
 ## Codex
 
@@ -50,6 +54,12 @@ cp Chisel/providers/codex/AGENTS.md AGENTS.md
 mkdir -p .codex/prompts
 cp Chisel/providers/codex/.codex/config.toml .codex/config.toml
 cp Chisel/providers/codex/.codex/prompts/chisel.md .codex/prompts/chisel.md
+```
+
+Then use:
+
+```text
+/chisel improve the checkout form validation
 ```
 
 Codex plugin-shaped metadata is also available at:
@@ -62,6 +72,14 @@ Chisel/providers/codex/.codex-plugin/plugin.json
 
 ```bash
 cp Chisel/providers/claude/CLAUDE.md CLAUDE.md
+mkdir -p .claude/commands
+cp Chisel/providers/claude/.claude/commands/chisel.md .claude/commands/chisel.md
+```
+
+Then use:
+
+```text
+/chisel improve the checkout form validation
 ```
 
 Or install the skill body from:

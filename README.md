@@ -35,14 +35,24 @@ Copy the provider file for your tool into the target project:
 
 | Tool | File to copy |
 |---|---|
-| GitHub Copilot | `.github/copilot-instructions.md` |
-| Codex | `AGENTS.md` and `.codex/` |
-| Claude Code | `CLAUDE.md` or `skills/chisel/SKILL.md` |
+| GitHub Copilot | `.github/copilot-instructions.md` and `.github/prompts/chisel.prompt.md` |
+| Codex | `AGENTS.md` and `.codex/prompts/chisel.md` |
+| Claude Code | `CLAUDE.md` and `.claude/commands/chisel.md` |
 | Gemini CLI | `GEMINI.md` |
 | Cursor | `.cursor/rules/chisel.mdc` |
 | opencode | `.opencode/AGENTS.md` |
 
 Ready-to-copy versions live under `providers/`.
+
+## Slash Commands
+
+Chisel installs `/chisel` where the assistant supports repo-local command files:
+
+- GitHub Copilot in VS Code: `.github/prompts/chisel.prompt.md`
+- Codex: `.codex/prompts/chisel.md`
+- Claude Code: `.claude/commands/chisel.md`
+
+Cursor, Gemini, and opencode get always-on instruction files in this v0. They can still use the phrase "use Chisel", but this pack does not claim a native `/chisel` command there yet.
 
 ## Marker Format
 
