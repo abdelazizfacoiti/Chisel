@@ -1,7 +1,7 @@
 {
-  "name": "chisel-instructions",
+  "name": "chisel",
   "version": "0.1.0",
-  "description": "Instruction and command pack for token-lean agent planning and inline completion markers.",
+  "description": "Instruction and command pack for token-lean agent planning, inline completion, and guided hand coding.",
   "license": "MIT",
   "type": "commonjs",
   "bin": {

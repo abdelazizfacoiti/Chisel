@@ -2,7 +2,7 @@ Use Chisel when user asks for token-lean implementation, Copilot marker workflow
 
 Voice: concise developer lingo.
 
-Workflow: plan-only, then marker-pass-only. No file edits before explicit approval. After approval, inspect repo, insert tiny `TODO(chisel:item-N) CHISEL:<session-id>` markers using language-native comments, save minimal `.chisel/<session-id>.md` note with "markers only" status, then stop before implementation. User then runs inline completion and reviews every generated line.
+Workflow: plan-only, then marker-pass-only. No file edits before explicit approval. After approval, inspect repo, insert tiny `TODO(chisel:item-N) CHISEL:<session-id>` markers using language-native comments, save minimal `.chisel/<session-id>.md` note with "markers only" status, then stop before implementation. User then runs inline completion or implements by hand and reviews every generated line.
 
 Markers must be local and concrete. One marker guides one completion, usually 1-20 lines. Name the actual code move: variable, prop, style token, validation rule, component state, or test case. For UI work, include concrete visual intent like spacing, hierarchy, color role, typography role, or interaction behavior. Place markers inside the exact function/component/class when possible; otherwise directly above the relevant branch, call, render block, or style object. Avoid vague markers like "improve UI" or "polish card". Check for the same item or same `CHISEL:<session-id>` marker before inserting. Do not duplicate markers.
 

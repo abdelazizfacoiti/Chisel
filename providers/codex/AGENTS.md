@@ -11,7 +11,7 @@ Workflow:
 - Insert only tiny `TODO(chisel:item-N) CHISEL:<session-id>` comments.
 - Save `.chisel/<session-id>.md` with task, files touched, item order with file/line, skipped items, cleanup marker, and "markers only" status.
 - Stop before full implementation.
-- Tell user to use GitHub Copilot inline completion at each marker.
+- Tell user to use inline completion or implement by hand at each marker.
 
 Marker quality:
 - One marker guides one local completion, usually 1-20 lines.

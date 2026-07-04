@@ -11,7 +11,7 @@ Process:
 6. Insert tiny `TODO(chisel:item-N) CHISEL:<session-id>` comments at target locations using language-native comment syntax.
 7. Save minimal `.chisel/<session-id>.md` with task, files touched, item order, skipped items, cleanup marker, and "markers only" status.
 8. Stop before writing full code.
-9. Tell user to use Copilot inline completion at each marker.
+9. Tell user to use inline completion or implement by hand at each marker.
 
 Marker quality:
 - One marker guides one local completion, usually 1-20 lines.

@@ -1,5 +1,5 @@
 ---
-description: "Chisel - token-lean plan/marker workflow for inline completion"
+description: "Chisel - token-lean plan/marker workflow for inline completion or hand coding"
 alwaysApply: true
 ---
 
@@ -21,6 +21,6 @@ Workflow:
 - Check for the same item or same `CHISEL:<session-id>` marker before inserting. Do not duplicate markers.
 - Save minimal `.chisel/<session-id>.md` with task, files touched, item order, skipped items, cleanup marker, and "markers only" status.
 - Stop before implementation.
-- Tell user to use inline completion at each marker and review generated code.
+- Tell user to use inline completion or implement by hand at each marker and review generated code.
 
 Avoid generated/vendor/build folders, binary files, and lock files. Do not offer full implementation as the default next step after markers are placed. Cleanup only exact session markers.

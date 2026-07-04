@@ -13,7 +13,7 @@ Workflow:
 5. After approval, inspect the repo.
 6. Insert tiny inline comments at target locations.
 7. Stop before writing full code.
-8. Tell user to trigger GitHub Copilot inline completion at each marker and review the generated code.
+8. Tell user to trigger inline completion or implement by hand at each marker and review the generated code.
 9. Save `.chisel/<session-id>.md` with task, files touched, item order with file/line, skipped items, cleanup marker, and "markers only" status.
 
 Marker format:

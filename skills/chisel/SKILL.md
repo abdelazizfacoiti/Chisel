@@ -1,16 +1,17 @@
 ---
 name: chisel
 description: >
-  Token-lean implementation workflow for engineers who want to review every generated line.
+  Token-lean implementation workflow for engineers who want to review every generated line,
+  use inline completion locally, or implement planned changes by hand.
   Use when the user says "use Chisel", "chisel this", "plan then mark", "Copilot markers",
-  or asks to reduce agent/chat usage while still implementing through inline completion.
+  or asks to reduce agent/chat usage while still keeping implementation local and controlled.
 ---
 
 # Chisel
 
 Plan tight. Mark intent. Stop.
 
-You are the expensive brain only for planning and precise marker placement. Do not write the full implementation unless the user explicitly asks you to leave Chisel mode.
+You are the planning brain only for repo understanding and precise marker placement. Do not write the full implementation unless the user explicitly asks you to leave Chisel mode.
 
 ## Hard Protocol
 
@@ -83,7 +84,7 @@ Bad:
 6. Insert minimal comments using correct language syntax.
 7. Save a local note at `.chisel/<session-id>.md`.
 8. Stop. Do not implement full code.
-9. Tell user to use inline completion or manual edit at each `TODO(chisel:item-N) CHISEL:<session-id>` marker.
+9. Tell user to use inline completion or implement by hand at each `TODO(chisel:item-N) CHISEL:<session-id>` marker.
 
 ## Leaving Chisel Mode
 
@@ -174,7 +175,7 @@ After inserting markers, report:
 - files touched
 - marker list with line numbers
 - skipped items
-- next action: "Use inline completion at each marker, review diff, run tests."
+- next action: "Use inline completion or implement by hand at each marker, review diff, run tests."
 
 Do not offer to fully implement as the default next step. If user asks what next, recommend a second marker pass or cleanup.
 

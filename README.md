@@ -10,7 +10,7 @@ Chisel is an instruction and command pack for AI coding tools. It helps engineer
 
 The chat agent does the high-leverage work: understand the task, inspect the repo, produce a small plan, and place concrete inline markers. GitHub Copilot or another inline completion engine can draft from those markers, or you can implement them by hand. You review every generated line either way.
 
-Chisel v0 does not insert markers by itself. It installs provider-specific instructions that tell your coding agent how to plan, place markers, and stop before implementation.
+Chisel v0 does not run its own deterministic marker-insertion engine. It installs provider-specific instructions that tell your coding agent how to plan, place markers, and stop before implementation.
 
 ## Status
 
@@ -123,6 +123,8 @@ npx -y github:abdelazizfacoiti/Chisel -- --only codex
 
 For all install options, providers, flags, uninstall steps, and manual copy commands, see [install.md](./install.md).
 
+Session notes are local by default. Consider adding `.chisel/` to `.gitignore` unless your team wants to review Chisel receipts.
+
 ## Provider Support
 
 | Tool | Installed files | How to invoke |
@@ -208,11 +210,19 @@ Chisel does not know exact Copilot usage or billing. It should not claim exact s
 
 Chisel v0 is not a full CLI app. The included `chisel` command only installs provider files. A future version can add deterministic session JSON, status, cleanup, and marker insertion.
 
+## What Chisel Is Not
+
+- Not a replacement for Codex, Copilot, Claude Code, Cursor, or Gemini.
+- Not a deterministic code generator in v0.
+- Not a billing tracker.
+- Not a guarantee that inline completion will produce correct code.
+- Not a way to skip code review.
+
 ## Roadmap
 
 - Deterministic marker scan and cleanup.
 - `chisel status`.
-- `chisel doctor`.
-- Session receipts as JSON.
+- Expand `chisel doctor` with provider-specific checks.
+- Session receipts as JSON in addition to Markdown.
 - Safer merge behavior for existing provider instruction files.
 - Optional code-mod based marker insertion.

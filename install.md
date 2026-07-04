@@ -2,6 +2,8 @@
 
 Chisel v0 is an instruction and command pack, not a standalone app. The `chisel` command only installs provider files into a project.
 
+Chisel session notes are local by default. Consider adding `.chisel/` to `.gitignore` unless your team wants to review Chisel receipts.
+
 ## One-Liner
 
 Run from the repo where you want Chisel active:
@@ -46,6 +48,8 @@ By default, Chisel does not overwrite existing provider files.
 If a target file already exists, the installer skips it unless you pass `--force`.
 
 Use `--dry-run` before `--force` if you want to inspect what would change.
+
+If Chisel is already installed, re-run with `--force` after upgrading if you want to refresh the installed provider files from the latest version.
 
 ## Inspect Before Installing
 
