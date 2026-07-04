@@ -51,7 +51,7 @@ Use a tag-pinned GitHub install like `github:abdelazizfacoiti/Chisel#v0.2.0` for
 - `--provider <provider|all>` narrows `doctor` checks.
 - `status [session-id]` scans `.chisel/` receipts and current repo markers.
 - `cleanup <session-id>` previews removal of exact session marker lines.
-- `cleanup <session-id> --apply` removes only standalone marker lines containing `CHISEL:<session-id>`.
+- `cleanup <session-id> --apply` removes both lines of a standalone marker block containing `CHISEL:<session-id>`.
 
 Provider ids: `copilot`, `codex`, `claude`, `gemini`, `cursor`, `opencode`.
 
@@ -99,7 +99,7 @@ npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- cleanup 20260704153000-a1b2c3
 npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- cleanup 20260704153000-a1b2c3 --apply
 ```
 
-Cleanup is literal: dry-run previews matching lines, and `--apply` removes only standalone marker lines containing the exact `CHISEL:<session-id>` string. Inline code+marker lines are warned and skipped for manual cleanup.
+Cleanup is literal: dry-run previews matching lines, and `--apply` removes both lines of a standalone marker block containing the exact `CHISEL:<session-id>` string. Inline code+marker lines are warned and skipped for manual cleanup.
 
 ## What Gets Installed
 

@@ -59,7 +59,7 @@ Chisel v0.2 works through provider instruction files plus local trust-layer comm
 - Hand-coding mode: you can ignore inline completion and implement each marker yourself, using Chisel as a guided map through the codebase.
 - Session receipts: agent writes `.chisel/<session-id>.md` and `.chisel/<session-id>.json` with task, files touched, item order, skipped items, and cleanup marker.
 - Deterministic status: `chisel status [session-id]` scans receipts and current repo markers.
-- Safe cleanup command: `chisel cleanup <session-id>` previews exact marker removal, and `--apply` removes only standalone marker lines containing `CHISEL:<session-id>`.
+- Safe cleanup command: `chisel cleanup <session-id>` previews exact marker removal, and `--apply` removes both lines of a standalone marker block containing `CHISEL:<session-id>`.
 - Provider doctor: `chisel doctor --provider all` checks installed provider files and reports missing or stale files.
 - Provider install pack: installer can drop the right instruction/command files for Codex, GitHub Copilot, Claude Code, Gemini, Cursor, and opencode.
 - Codex plugin metadata: `.codex-plugin/plugin.json` is included for packaging Chisel as an installable Codex plugin later.
@@ -86,9 +86,12 @@ Approve marker pass?
 After approval, the agent should place markers near the relevant code:
 
 ```ts
-// TODO(chisel:item-1) CHISEL:20260704153000-a1b2c3 Validate email format before submit.
-// TODO(chisel:item-2) CHISEL:20260704153000-a1b2c3 Show inline error message.
-// TODO(chisel:item-3) CHISEL:20260704153000-a1b2c3 Disable submit while invalid.
+// CHISEL:20260704153000-a1b2c3 item-1
+// TODO: Validate email format before submit.
+// CHISEL:20260704153000-a1b2c3 item-2
+// TODO: Show inline error message.
+// CHISEL:20260704153000-a1b2c3 item-3
+// TODO: Disable submit while invalid.
 ```
 
 Now trigger inline completion at each marker, or implement by hand, review the diff, run tests, then remove markers containing `CHISEL:20260704153000-a1b2c3`.
@@ -99,7 +102,8 @@ Example marker inside `src/components/SignupForm.tsx`:
 function handleSubmit(event: FormEvent) {
   event.preventDefault();
 
-  // TODO(chisel:item-1) CHISEL:20260704153000-a1b2c3 Validate email format before submit and return early with an inline error.
+  // CHISEL:20260704153000-a1b2c3 item-1
+  // TODO: Validate email format before submit and return early with an inline error.
 
   submitForm();
 }
@@ -110,7 +114,7 @@ function handleSubmit(event: FormEvent) {
 1. Say: "Use Chisel for this task: add validation to the checkout form."
 2. Agent writes a concise plan.
 3. You approve the plan.
-4. Agent inspects files and inserts `TODO(chisel:item-N) CHISEL:<session-id>` markers.
+4. Agent inspects files and inserts paired `CHISEL:<session-id> item-N` and `TODO:` marker lines.
 5. Agent stops before implementation.
 6. You trigger inline completion at each marker or implement by hand.
 7. You review the diff and run tests.
@@ -165,7 +169,7 @@ Check installed provider files:
 chisel doctor --provider all
 ```
 
-`status` scans the repo literally. If your docs contain Chisel marker examples, those examples can appear as markers. `cleanup` removes only standalone marker lines, and if a marker was appended to code on the same line it is skipped with a warning for manual cleanup.
+`status` scans the repo literally. If your docs contain Chisel marker examples, those examples can appear as markers. `cleanup` removes paired standalone marker lines, and if a marker was appended to code on the same line it is skipped with a warning for manual cleanup.
 
 ## Troubleshooting
 
@@ -181,39 +185,50 @@ Swap `codex` for the provider you are using.
 
 ## Marker Format
 
+## Marker Format v2
+
+Chisel now writes markers as a two-line block: a tracking line with the session and item id, followed immediately by a natural-language TODO line for inline-completion engines.
+
+Old single-line markers still work with `chisel status` and `chisel cleanup`. New sessions should use the two-line format going forward.
+
 TypeScript, JavaScript, Java, C#, Kotlin:
 
 ```ts
-// TODO(chisel:item-2) CHISEL:<session-id> Add email validation before submit.
+// CHISEL:<session-id> item-2
+// TODO: Add email validation before submit.
 ```
 
 Python, Shell, Ruby:
 
 ```py
-# TODO(chisel:item-2) CHISEL:<session-id> Add email validation before submit.
+# CHISEL:<session-id> item-2
+# TODO: Add email validation before submit.
 ```
 
 HTML:
 
 ```html
-<!-- TODO(chisel:item-2) CHISEL:<session-id> Add empty-state markup. -->
+<!-- CHISEL:<session-id> item-2 -->
+<!-- TODO: Add empty-state markup. -->
 ```
 
 Good markers are local and concrete:
 
 ```tsx
-// TODO(chisel:item-4) CHISEL:<session-id> Replace flat card surface with subtle border, shadow, and pressed state styles.
+// CHISEL:<session-id> item-4
+// TODO: Replace flat card surface with subtle border, shadow, and pressed state styles.
 ```
 
 Weak markers are too broad:
 
 ```tsx
-// TODO(chisel:item-4) CHISEL:<session-id> Improve card polish.
+// CHISEL:<session-id> item-4
+// TODO: Improve card polish.
 ```
 
 Each marker should guide one inline completion, usually 1-20 lines.
 
-Every CHISEL marker must be on its own line. Never append a marker after code on the same line.
+Every CHISEL marker must be on its own line. The tracking line and instruction line must be adjacent, with the instruction line immediately following the tracking line. Never append either line after code on the same line.
 
 ## Marker Quality Bar
 

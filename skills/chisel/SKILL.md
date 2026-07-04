@@ -92,7 +92,7 @@ Bad:
 6. Insert minimal comments using correct language syntax.
 7. Save a local note at `.chisel/<session-id>.md` and a machine-readable receipt at `.chisel/<session-id>.json`.
 8. Stop. Do not implement full code.
-9. Tell user to use inline completion or implement by hand at each `TODO(chisel:item-N) CHISEL:<session-id>` marker.
+9. Tell user to use inline completion or implement by hand at each two-line CHISEL/TODO marker block.
 
 Interpret "yes" after the plan as approval to place markers only. Never interpret it as approval to write code.
 
@@ -114,6 +114,9 @@ If the user says "yes" after the plan and before markers are placed, insert mark
 - Every marker includes session id and item id.
 - One marker should guide one local completion, usually 1-20 lines.
 - Every CHISEL marker must be on its own line. Never append a marker after code on the same line.
+- Tracking line and instruction line must be adjacent, with the instruction line immediately following the tracking line, and nothing else between them.
+- The instruction line should read as a normal, complete TODO a developer or inline-completion engine could act on without needing the tracking line.
+- Do not put session ids or item ids in the instruction line, and do not put instruction text in the tracking line.
 - Marker text must name the concrete code move: variable, prop, style token, branch, validation rule, component state, or test case.
 - Prefer imperative verbs: add, replace, extract, guard, map, memoize, render, validate.
 - For UI work, include concrete visual intent: spacing value, component state, hierarchy, color role, typography role, or interaction behavior.
@@ -138,38 +141,42 @@ Do not place markers at the top of a file unless the task is file-level and the 
 Examples:
 
 ```ts
-// TODO(chisel:item-2) CHISEL:20260704153000-a1b2c3 Add email validation before submit.
+// CHISEL:20260704153000-a1b2c3 item-2
+// TODO: Add email validation before submit.
 ```
 
 ```tsx
-// TODO(chisel:item-4) CHISEL:20260704153000-a1b2c3 Replace flat card surface with subtle border, shadow, and pressed state styles.
+// CHISEL:20260704153000-a1b2c3 item-4
+// TODO: Replace flat card surface with subtle border, shadow, and pressed state styles.
 ```
 
 ```py
-# TODO(chisel:item-2) CHISEL:20260704153000-a1b2c3 Add email validation before submit.
+# CHISEL:20260704153000-a1b2c3 item-2
+# TODO: Add email validation before submit.
 ```
 
 ```html
-<!-- TODO(chisel:item-2) CHISEL:20260704153000-a1b2c3 Add empty-state markup. -->
+<!-- CHISEL:20260704153000-a1b2c3 item-2 -->
+<!-- TODO: Add empty-state markup. -->
 ```
 
 ## Comment Syntax Reference
 
 | Surface | Syntax |
 |---|---|
-| JS / TS / TSX | `// TODO(chisel:item-N) CHISEL:<session-id> ...` |
-| Python | `# TODO(chisel:item-N) CHISEL:<session-id> ...` |
-| HTML | `<!-- TODO(chisel:item-N) CHISEL:<session-id> ... -->` |
-| CSS / SCSS | `/* TODO(chisel:item-N) CHISEL:<session-id> ... */` |
-| Go | `// TODO(chisel:item-N) CHISEL:<session-id> ...` |
-| Rust | `// TODO(chisel:item-N) CHISEL:<session-id> ...` |
-| Java | `// TODO(chisel:item-N) CHISEL:<session-id> ...` |
-| SQL | `-- TODO(chisel:item-N) CHISEL:<session-id> ...` |
-| YAML | `# TODO(chisel:item-N) CHISEL:<session-id> ...` |
-| Vue SFC `<script>` | `// TODO(chisel:item-N) CHISEL:<session-id> ...` |
-| Vue SFC `<template>` | `<!-- TODO(chisel:item-N) CHISEL:<session-id> ... -->` |
-| Svelte `<script>` | `// TODO(chisel:item-N) CHISEL:<session-id> ...` |
-| Svelte markup | `<!-- TODO(chisel:item-N) CHISEL:<session-id> ... -->` |
+| JS / TS / TSX | `// CHISEL:<session-id> item-N`<br>`// TODO: ...` |
+| Python | `# CHISEL:<session-id> item-N`<br>`# TODO: ...` |
+| HTML | `<!-- CHISEL:<session-id> item-N -->`<br>`<!-- TODO: ... -->` |
+| CSS / SCSS | `/* CHISEL:<session-id> item-N */`<br>`/* TODO: ... */` |
+| Go | `// CHISEL:<session-id> item-N`<br>`// TODO: ...` |
+| Rust | `// CHISEL:<session-id> item-N`<br>`// TODO: ...` |
+| Java | `// CHISEL:<session-id> item-N`<br>`// TODO: ...` |
+| SQL | `-- CHISEL:<session-id> item-N`<br>`-- TODO: ...` |
+| YAML | `# CHISEL:<session-id> item-N`<br>`# TODO: ...` |
+| Vue SFC `<script>` | `// CHISEL:<session-id> item-N`<br>`// TODO: ...` |
+| Vue SFC `<template>` | `<!-- CHISEL:<session-id> item-N -->`<br>`<!-- TODO: ... -->` |
+| Svelte `<script>` | `// CHISEL:<session-id> item-N`<br>`// TODO: ...` |
+| Svelte markup | `<!-- CHISEL:<session-id> item-N -->`<br>`<!-- TODO: ... -->` |
 
 ## Cleanup
 

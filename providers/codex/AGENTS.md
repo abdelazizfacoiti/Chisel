@@ -10,7 +10,7 @@ Workflow:
 - Make concise numbered plan and include likely files/symbols.
 - Ask: "Approve marker pass?"
 - After approval, inspect target files.
-- Insert only tiny `TODO(chisel:item-N) CHISEL:<session-id>` comments.
+- Insert only tiny two-line CHISEL/TODO marker blocks.
 - Save `.chisel/<session-id>.md` and `.chisel/<session-id>.json` with task, files touched, item order with file/line, skipped items, cleanup marker, and "markers only" status.
 - Stop before full implementation.
 - Tell user to use inline completion or implement by hand at each marker.
@@ -20,6 +20,8 @@ Marker quality:
 - One marker guides one local completion, usually 1-20 lines.
 - Use language-native comment syntax.
 - Every CHISEL marker must be on its own line. Never append a marker after code on the same line.
+- Tracking line and instruction line must be adjacent, with the instruction line immediately following the tracking line.
+- The instruction line must read as a complete TODO without needing the tracking line.
 - Text must name the concrete code move: variable, prop, style token, branch, validation rule, component state, or test case.
 - For UI work, include concrete visual intent: spacing value, component state, hierarchy, color role, typography role, or interaction behavior.
 - Avoid vague markers like "improve UI", "stronger hero treatment", "layout direction", or "polish card".
@@ -42,9 +44,9 @@ Session note stays minimal. Do not duplicate the full marker instructions there.
 Comment syntax quick reference:
 | Surface | Syntax |
 |---|---|
-| JS / TS / TSX / Go / Rust / Java | `// TODO(chisel:item-N) CHISEL:<session-id> ...` |
-| Python / YAML | `# TODO(chisel:item-N) CHISEL:<session-id> ...` |
-| HTML / Vue template / Svelte markup | `<!-- TODO(chisel:item-N) CHISEL:<session-id> ... -->` |
-| CSS / SCSS | `/* TODO(chisel:item-N) CHISEL:<session-id> ... */` |
-| SQL | `-- TODO(chisel:item-N) CHISEL:<session-id> ...` |
-| Vue / Svelte `<script>` | `// TODO(chisel:item-N) CHISEL:<session-id> ...` |
+| JS / TS / TSX / Go / Rust / Java | `// CHISEL:<session-id> item-N`<br>`// TODO: ...` |
+| Python / YAML | `# CHISEL:<session-id> item-N`<br>`# TODO: ...` |
+| HTML / Vue template / Svelte markup | `<!-- CHISEL:<session-id> item-N -->`<br>`<!-- TODO: ... -->` |
+| CSS / SCSS | `/* CHISEL:<session-id> item-N */`<br>`/* TODO: ... */` |
+| SQL | `-- CHISEL:<session-id> item-N`<br>`-- TODO: ...` |
+| Vue / Svelte `<script>` | `// CHISEL:<session-id> item-N`<br>`// TODO: ...` |

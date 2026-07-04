@@ -8,10 +8,12 @@ Hard contract:
 - Approval for the marker pass means comment insertion only. It is not approval to implement or polish the feature.
 - Tiny mode max: 3 markers. Normal mode max: 8 markers. If more items remain, report `skipped: marker cap reached`.
 - Plan must be concise, numbered, and include likely files/symbols.
-- After approval, inspect repo and insert only tiny `TODO(chisel:item-N) CHISEL:<session-id>` comments.
+- After approval, inspect repo and insert only tiny two-line CHISEL/TODO marker blocks.
 - Use language-native comment syntax.
 - Make each marker concrete enough for one local inline completion, usually 1-20 lines.
 - Every CHISEL marker must be on its own line. Never append a marker after code on the same line.
+- Tracking line and instruction line must be adjacent, with the instruction line immediately following the tracking line.
+- The instruction line must read as a complete TODO without needing the tracking line.
 - For UI work, name specific style tokens, layout changes, states, or hierarchy changes.
 - Avoid vague markers like "improve UI", "stronger hero", or "polish card".
 - Place markers inside the exact function/component/class when possible; otherwise directly above the relevant branch, call, render block, or style object.
@@ -25,9 +27,9 @@ Hard contract:
 Comment syntax quick reference:
 | Surface | Syntax |
 |---|---|
-| JS / TS / TSX / Go / Rust / Java | `// TODO(chisel:item-N) CHISEL:<session-id> ...` |
-| Python / YAML | `# TODO(chisel:item-N) CHISEL:<session-id> ...` |
-| HTML / Vue template / Svelte markup | `<!-- TODO(chisel:item-N) CHISEL:<session-id> ... -->` |
-| CSS / SCSS | `/* TODO(chisel:item-N) CHISEL:<session-id> ... */` |
-| SQL | `-- TODO(chisel:item-N) CHISEL:<session-id> ...` |
-| Vue / Svelte `<script>` | `// TODO(chisel:item-N) CHISEL:<session-id> ...` |
+| JS / TS / TSX / Go / Rust / Java | `// CHISEL:<session-id> item-N`<br>`// TODO: ...` |
+| Python / YAML | `# CHISEL:<session-id> item-N`<br>`# TODO: ...` |
+| HTML / Vue template / Svelte markup | `<!-- CHISEL:<session-id> item-N -->`<br>`<!-- TODO: ... -->` |
+| CSS / SCSS | `/* CHISEL:<session-id> item-N */`<br>`/* TODO: ... */` |
+| SQL | `-- CHISEL:<session-id> item-N`<br>`-- TODO: ...` |
+| Vue / Svelte `<script>` | `// CHISEL:<session-id> item-N`<br>`// TODO: ...` |
