@@ -9,22 +9,22 @@ Chisel session notes are local by default. Consider adding `.chisel/` to `.gitig
 Run from the repo where you want Chisel active:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel -- --only codex
-```
-
-The clearer v0.2 command form is:
-
-```bash
-npx -y github:abdelazizfacoiti/Chisel -- install --only codex
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only codex
 ```
 
 Install another provider:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel -- --only copilot
-npx -y github:abdelazizfacoiti/Chisel -- --only claude
-npx -y github:abdelazizfacoiti/Chisel -- --only cursor
-npx -y github:abdelazizfacoiti/Chisel -- --all
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only copilot
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only claude
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only cursor
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --all
+```
+
+Legacy shorthand still works for backward compatibility:
+
+```bash
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- --only codex
 ```
 
 Local testing from a Chisel clone:
@@ -32,6 +32,10 @@ Local testing from a Chisel clone:
 ```bash
 node bin/chisel-install.js --only codex --target /path/to/project --dry-run
 ```
+
+## Pinning A Version
+
+Use a tag-pinned GitHub install like `github:abdelazizfacoiti/Chisel#v0.2.0` for reproducible installs and to avoid silent behavior changes when the default branch moves.
 
 ## Flags
 
@@ -47,7 +51,7 @@ node bin/chisel-install.js --only codex --target /path/to/project --dry-run
 - `--provider <provider|all>` narrows `doctor` checks.
 - `status [session-id]` scans `.chisel/` receipts and current repo markers.
 - `cleanup <session-id>` previews removal of exact session marker lines.
-- `cleanup <session-id> --apply` removes only lines containing `CHISEL:<session-id>`.
+- `cleanup <session-id> --apply` removes only standalone marker lines containing `CHISEL:<session-id>`.
 
 Provider ids: `copilot`, `codex`, `claude`, `gemini`, `cursor`, `opencode`.
 
@@ -66,37 +70,36 @@ If Chisel is already installed, re-run with `--force` after upgrading if you wan
 List supported providers:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel -- --list-providers
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- --list-providers
 ```
 
 Print the files for one provider:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel -- --print codex
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- --print codex
 ```
 
 Check a repo after installing:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel -- --doctor
-npx -y github:abdelazizfacoiti/Chisel -- doctor --provider all
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- doctor --provider all
 ```
 
 Inspect a Chisel session:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel -- status
-npx -y github:abdelazizfacoiti/Chisel -- status 2026-07-04-a1b2
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- status
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- status 20260704153000-a1b2c3
 ```
 
 Preview and apply cleanup:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel -- cleanup 2026-07-04-a1b2
-npx -y github:abdelazizfacoiti/Chisel -- cleanup 2026-07-04-a1b2 --apply
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- cleanup 20260704153000-a1b2c3
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- cleanup 20260704153000-a1b2c3 --apply
 ```
 
-Cleanup is literal: dry-run previews matching lines, and `--apply` removes only lines containing the exact `CHISEL:<session-id>` string.
+Cleanup is literal: dry-run previews matching lines, and `--apply` removes only standalone marker lines containing the exact `CHISEL:<session-id>` string. Inline code+marker lines are warned and skipped for manual cleanup.
 
 ## What Gets Installed
 
@@ -122,7 +125,7 @@ Codex reusable workflows are skills. Chisel installs a repo skill here:
 Install:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel -- --only codex
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only codex
 ```
 
 Use one of:
@@ -136,7 +139,7 @@ use Chisel for this task: improve the checkout form validation
 Optional deprecated prompt command:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel -- --only codex --with-codex-prompt
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only codex --with-codex-prompt
 ```
 
 Restart Codex, then invoke:
@@ -152,7 +155,7 @@ Important: Chisel does not claim a native repo-local `/chisel` command in Codex.
 Install:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel -- --only copilot
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only copilot
 ```
 
 Files:
@@ -169,7 +172,7 @@ In VS Code Copilot Chat, the prompt file should be available through the prompt/
 Install:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel -- --only claude
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only claude
 ```
 
 Files:
@@ -190,7 +193,7 @@ Use:
 Install:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel -- --only gemini
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only gemini
 ```
 
 Then say:
@@ -204,7 +207,7 @@ use Chisel for this task: improve the checkout form validation
 Install:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel -- --only cursor
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only cursor
 ```
 
 Then say:
@@ -218,7 +221,7 @@ use Chisel for this task: improve the checkout form validation
 Install:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel -- --only opencode
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only opencode
 ```
 
 Then say:

@@ -43,13 +43,13 @@ function outputBuffer() {
 
 test('parseMarkerLine extracts item, session, file, line, and marker text', () => {
   const marker = parseMarkerLine(
-    '// TODO(chisel:item-2) CHISEL:20260704-a1b2 Add email validation before submit.',
+    '// TODO(chisel:item-2) CHISEL:20260704153000-a1b2c3 Add email validation before submit.',
     42,
     'src/form.ts',
   );
 
   assert.equal(marker.itemId, 'item-2');
-  assert.equal(marker.sessionId, '20260704-a1b2');
+  assert.equal(marker.sessionId, '20260704153000-a1b2c3');
   assert.equal(marker.file, 'src/form.ts');
   assert.equal(marker.line, 42);
   assert.equal(marker.markerText, 'Add email validation before submit.');
@@ -107,33 +107,40 @@ test('status combines JSON receipts with marker scan fallback', () => {
 test('cleanup dry-run reports markers without editing files', () => {
   const repo = tempRepo();
   const file = writeFile(repo, 'src/form.ts', [
-    '// TODO(chisel:item-1) CHISEL:test-session Add validation guard.',
+    '// TODO(chisel:item-1) CHISEL:20260704153000-a1b2c3 Add validation guard.',
     'const keep = true;',
   ].join('\n'));
   const out = outputBuffer();
 
-  const changes = cleanup({ target: repo, sessionId: 'test-session', apply: false }, out.stream);
+  const result = cleanup({ target: repo, sessionId: '20260704153000-a1b2c3', apply: false }, out.stream);
 
-  assert.equal(changes.length, 1);
+  assert.equal(result.changes.length, 1);
+  assert.equal(result.skippedInline.length, 0);
   assert.match(out.read(), /Dry run only/);
-  assert.match(fs.readFileSync(file, 'utf8'), /CHISEL:test-session/);
+  assert.match(fs.readFileSync(file, 'utf8'), /CHISEL:20260704153000-a1b2c3/);
 });
 
-test('cleanup apply removes only exact session marker lines', () => {
+test('cleanup removes standalone marker lines and skips inline code markers', () => {
   const repo = tempRepo();
   const file = writeFile(repo, 'src/form.ts', [
-    '// TODO(chisel:item-1) CHISEL:test-session Add validation guard.',
-    '// TODO(chisel:item-1) CHISEL:other-session Keep other marker.',
+    '// TODO(chisel:item-1) CHISEL:20260704153000-a1b2c3 Add validation guard.',
+    'const keep = true; // TODO(chisel:item-2) CHISEL:20260704153000-a1b2c3 Do not delete inline marker.',
+    '// TODO(chisel:item-1) CHISEL:20260704153000-z9y8x7 Keep other marker.',
     'const keep = true;',
   ].join('\n'));
   const out = outputBuffer();
 
-  cleanup({ target: repo, sessionId: 'test-session', apply: true }, out.stream);
+  const result = cleanup({ target: repo, sessionId: '20260704153000-a1b2c3', apply: true }, out.stream);
   const content = fs.readFileSync(file, 'utf8');
 
-  assert.doesNotMatch(content, /CHISEL:test-session/);
-  assert.match(content, /CHISEL:other-session/);
+  assert.equal(result.changes.length, 1);
+  assert.equal(result.skippedInline.length, 1);
+  assert.doesNotMatch(content, /^\/\/ TODO\(chisel:item-1\) CHISEL:20260704153000-a1b2c3/m);
+  assert.match(content, /const keep = true; \/\/ TODO\(chisel:item-2\) CHISEL:20260704153000-a1b2c3 Do not delete inline marker\./);
+  assert.match(content, /CHISEL:20260704153000-z9y8x7/);
   assert.match(content, /const keep = true/);
+  assert.match(out.read(), /skipped-inline: 1/);
+  assert.match(out.read(), /remove it manually/);
 });
 
 test('legacy installer command still installs Codex files', () => {
@@ -183,6 +190,7 @@ test('installer reports stale files and provider doctor detects them', () => {
   const result = doctor({ target: repo, provider: 'codex' }, doctorOut.stream);
 
   assert.match(secondInstallOut.read(), /skipped-stale: AGENTS\.md/);
+  assert.match(doctorOut.read(), /chisel installed version: 0\.2\.0/);
   assert.match(doctorOut.read(), /target: codex AGENTS\.md stale/);
   assert.equal(result.failed > 0, true);
 });

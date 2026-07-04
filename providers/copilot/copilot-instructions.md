@@ -11,11 +11,12 @@ Workflow:
 3. Ask: "Approve marker pass?"
 4. Do not edit files before explicit approval.
 5. Approval for the marker pass means comment insertion only. It is not approval to implement, polish, or enhance the feature.
-6. After approval, inspect the repo.
-7. Insert tiny inline comments at target locations.
-8. Stop before writing full code in the same turn.
-9. Tell user to trigger inline completion or implement by hand at each marker and review the generated code.
-10. Save `.chisel/<session-id>.md` and `.chisel/<session-id>.json` with task, files touched, item order with file/line, skipped items, cleanup marker, and "markers only" status.
+6. Tiny mode max: 3 markers. Normal mode max: 8 markers. If more items remain, report `skipped: marker cap reached`.
+7. After approval, inspect the repo.
+8. Insert tiny inline comments at target locations.
+9. Stop before writing full code in the same turn.
+10. Tell user to trigger inline completion or implement by hand at each marker and review the generated code.
+11. Save `.chisel/<session-id>.md` and `.chisel/<session-id>.json` with task, files touched, item order with file/line, skipped items, cleanup marker, and "markers only" status.
 
 Marker format:
 
@@ -42,6 +43,7 @@ Rules:
 - Never insert huge prompt comments.
 - One marker should guide one local completion, usually 1-20 lines.
 - Use language-native comment syntax.
+- Every CHISEL marker must be on its own line. Never append a marker after code on the same line.
 - Marker text must name the concrete code move: variable, prop, style token, branch, validation rule, component state, or test case.
 - For UI work, include concrete visual intent: spacing value, component state, hierarchy, color role, typography role, or interaction behavior.
 - Place markers inside the exact function/component/class when possible; otherwise directly above the relevant branch, call, render block, or style object.
@@ -55,6 +57,16 @@ Rules:
 - Cleanup removes only comments containing exact `CHISEL:<session-id>`.
 
 Session note stays minimal. Do not duplicate the full marker instructions there.
+
+Comment syntax quick reference:
+| Surface | Syntax |
+|---|---|
+| JS / TS / TSX / Go / Rust / Java | `// TODO(chisel:item-N) CHISEL:<session-id> ...` |
+| Python / YAML | `# TODO(chisel:item-N) CHISEL:<session-id> ...` |
+| HTML / Vue template / Svelte markup | `<!-- TODO(chisel:item-N) CHISEL:<session-id> ... -->` |
+| CSS / SCSS | `/* TODO(chisel:item-N) CHISEL:<session-id> ... */` |
+| SQL | `-- TODO(chisel:item-N) CHISEL:<session-id> ...` |
+| Vue / Svelte `<script>` | `// TODO(chisel:item-N) CHISEL:<session-id> ...` |
 
 Limits:
 

@@ -59,7 +59,7 @@ Chisel v0.2 works through provider instruction files plus local trust-layer comm
 - Hand-coding mode: you can ignore inline completion and implement each marker yourself, using Chisel as a guided map through the codebase.
 - Session receipts: agent writes `.chisel/<session-id>.md` and `.chisel/<session-id>.json` with task, files touched, item order, skipped items, and cleanup marker.
 - Deterministic status: `chisel status [session-id]` scans receipts and current repo markers.
-- Safe cleanup command: `chisel cleanup <session-id>` previews exact marker removal, and `--apply` removes only lines containing `CHISEL:<session-id>`.
+- Safe cleanup command: `chisel cleanup <session-id>` previews exact marker removal, and `--apply` removes only standalone marker lines containing `CHISEL:<session-id>`.
 - Provider doctor: `chisel doctor --provider all` checks installed provider files and reports missing or stale files.
 - Provider install pack: installer can drop the right instruction/command files for Codex, GitHub Copilot, Claude Code, Gemini, Cursor, and opencode.
 - Codex plugin metadata: `.codex-plugin/plugin.json` is included for packaging Chisel as an installable Codex plugin later.
@@ -86,12 +86,12 @@ Approve marker pass?
 After approval, the agent should place markers near the relevant code:
 
 ```ts
-// TODO(chisel:item-1) CHISEL:2026-07-04-a1b2 Validate email format before submit.
-// TODO(chisel:item-2) CHISEL:2026-07-04-a1b2 Show inline error message.
-// TODO(chisel:item-3) CHISEL:2026-07-04-a1b2 Disable submit while invalid.
+// TODO(chisel:item-1) CHISEL:20260704153000-a1b2c3 Validate email format before submit.
+// TODO(chisel:item-2) CHISEL:20260704153000-a1b2c3 Show inline error message.
+// TODO(chisel:item-3) CHISEL:20260704153000-a1b2c3 Disable submit while invalid.
 ```
 
-Now trigger inline completion at each marker, or implement by hand, review the diff, run tests, then remove markers containing `CHISEL:2026-07-04-a1b2`.
+Now trigger inline completion at each marker, or implement by hand, review the diff, run tests, then remove markers containing `CHISEL:20260704153000-a1b2c3`.
 
 Example marker inside `src/components/SignupForm.tsx`:
 
@@ -99,7 +99,7 @@ Example marker inside `src/components/SignupForm.tsx`:
 function handleSubmit(event: FormEvent) {
   event.preventDefault();
 
-  // TODO(chisel:item-1) CHISEL:2026-07-04-a1b2 Validate email format before submit and return early with an inline error.
+  // TODO(chisel:item-1) CHISEL:20260704153000-a1b2c3 Validate email format before submit and return early with an inline error.
 
   submitForm();
 }
@@ -121,13 +121,7 @@ function handleSubmit(event: FormEvent) {
 From the repo where you want Chisel active:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel -- --only codex
-```
-
-The clearer v0.2 form also works:
-
-```bash
-npx -y github:abdelazizfacoiti/Chisel -- install --only codex
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only codex
 ```
 
 For all install options, providers, flags, uninstall steps, and manual copy commands, see [install.md](./install.md).
@@ -155,14 +149,14 @@ Show active receipts and markers:
 
 ```bash
 chisel status
-chisel status 2026-07-04-a1b2
+chisel status 20260704153000-a1b2c3
 ```
 
 Preview cleanup, then apply it:
 
 ```bash
-chisel cleanup 2026-07-04-a1b2
-chisel cleanup 2026-07-04-a1b2 --apply
+chisel cleanup 20260704153000-a1b2c3
+chisel cleanup 20260704153000-a1b2c3 --apply
 ```
 
 Check installed provider files:
@@ -171,7 +165,7 @@ Check installed provider files:
 chisel doctor --provider all
 ```
 
-`status` scans the repo literally. If your docs contain Chisel marker examples, those examples can appear as markers. `cleanup` is also literal: it removes lines containing the exact `CHISEL:<session-id>` string only when `--apply` is passed.
+`status` scans the repo literally. If your docs contain Chisel marker examples, those examples can appear as markers. `cleanup` removes only standalone marker lines, and if a marker was appended to code on the same line it is skipped with a warning for manual cleanup.
 
 ## Troubleshooting
 
@@ -180,7 +174,7 @@ If an agent starts implementing code right after you approve the marker pass, th
 Refresh the installed provider files in the target repo after upgrading Chisel:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel -- install --only codex --force
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only codex --force
 ```
 
 Swap `codex` for the provider you are using.
@@ -218,6 +212,8 @@ Weak markers are too broad:
 ```
 
 Each marker should guide one inline completion, usually 1-20 lines.
+
+Every CHISEL marker must be on its own line. Never append a marker after code on the same line.
 
 ## Marker Quality Bar
 

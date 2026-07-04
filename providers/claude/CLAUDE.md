@@ -8,14 +8,16 @@ Process:
 3. Ask: "Approve marker pass?"
 4. Do not edit files before explicit approval.
 5. Approval for the marker pass means comment insertion only. It is not approval to implement, polish, or enhance the feature.
-6. After approval, inspect repo.
-7. Insert tiny `TODO(chisel:item-N) CHISEL:<session-id>` comments at target locations using language-native comment syntax.
-8. Save minimal `.chisel/<session-id>.md` and `.chisel/<session-id>.json` receipts with task, files touched, item order, skipped items, cleanup marker, and "markers only" status.
-9. Stop before writing full code in the same turn.
-10. Tell user to use inline completion or implement by hand at each marker.
+6. Tiny mode max: 3 markers. Normal mode max: 8 markers. If more items remain, report `skipped: marker cap reached`.
+7. After approval, inspect repo.
+8. Insert tiny `TODO(chisel:item-N) CHISEL:<session-id>` comments at target locations using language-native comment syntax.
+9. Save minimal `.chisel/<session-id>.md` and `.chisel/<session-id>.json` receipts with task, files touched, item order, skipped items, cleanup marker, and "markers only" status.
+10. Stop before writing full code in the same turn.
+11. Tell user to use inline completion or implement by hand at each marker.
 
 Marker quality:
 - One marker guides one local completion, usually 1-20 lines.
+- Every CHISEL marker must be on its own line. Never append a marker after code on the same line.
 - Text must name the concrete code move: variable, prop, style token, branch, validation rule, component state, or test case.
 - For UI work, include concrete visual intent: spacing value, component state, hierarchy, color role, typography role, or interaction behavior.
 - Avoid vague markers like "improve UI", "stronger hero treatment", or "polish card".
@@ -32,3 +34,13 @@ Safety:
 - Do not treat "yes" to the plan as approval to implement code.
 
 Cleanup removes only comments containing exact `CHISEL:<session-id>`.
+
+Comment syntax quick reference:
+| Surface | Syntax |
+|---|---|
+| JS / TS / TSX / Go / Rust / Java | `// TODO(chisel:item-N) CHISEL:<session-id> ...` |
+| Python / YAML | `# TODO(chisel:item-N) CHISEL:<session-id> ...` |
+| HTML / Vue template / Svelte markup | `<!-- TODO(chisel:item-N) CHISEL:<session-id> ... -->` |
+| CSS / SCSS | `/* TODO(chisel:item-N) CHISEL:<session-id> ... */` |
+| SQL | `-- TODO(chisel:item-N) CHISEL:<session-id> ...` |
+| Vue / Svelte `<script>` | `// TODO(chisel:item-N) CHISEL:<session-id> ...` |

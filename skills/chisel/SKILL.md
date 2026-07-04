@@ -53,7 +53,9 @@ Tiny mode:
 
 Normal mode:
 - Use for typical feature edits.
-- Usually 3-7 plan items.
+- Usually 3-8 plan items.
+- Maximum 8 markers.
+- If more items remain, stop and report: "skipped: marker cap reached".
 - Mark only concrete implementation points.
 
 Review mode:
@@ -111,6 +113,7 @@ If the user says "yes" after the plan and before markers are placed, insert mark
 - Tiny comments when possible, if not add enough context to avoid ambiguity.
 - Every marker includes session id and item id.
 - One marker should guide one local completion, usually 1-20 lines.
+- Every CHISEL marker must be on its own line. Never append a marker after code on the same line.
 - Marker text must name the concrete code move: variable, prop, style token, branch, validation rule, component state, or test case.
 - Prefer imperative verbs: add, replace, extract, guard, map, memoize, render, validate.
 - For UI work, include concrete visual intent: spacing value, component state, hierarchy, color role, typography role, or interaction behavior.
@@ -135,20 +138,38 @@ Do not place markers at the top of a file unless the task is file-level and the 
 Examples:
 
 ```ts
-// TODO(chisel:item-2) CHISEL:20260702153000-a1b2c3 Add email validation before submit.
+// TODO(chisel:item-2) CHISEL:20260704153000-a1b2c3 Add email validation before submit.
 ```
 
 ```tsx
-// TODO(chisel:item-4) CHISEL:20260702153000-a1b2c3 Replace flat card surface with subtle border, shadow, and pressed state styles.
+// TODO(chisel:item-4) CHISEL:20260704153000-a1b2c3 Replace flat card surface with subtle border, shadow, and pressed state styles.
 ```
 
 ```py
-# TODO(chisel:item-2) CHISEL:20260702153000-a1b2c3 Add email validation before submit.
+# TODO(chisel:item-2) CHISEL:20260704153000-a1b2c3 Add email validation before submit.
 ```
 
 ```html
-<!-- TODO(chisel:item-2) CHISEL:20260702153000-a1b2c3 Add empty-state markup. -->
+<!-- TODO(chisel:item-2) CHISEL:20260704153000-a1b2c3 Add empty-state markup. -->
 ```
+
+## Comment Syntax Reference
+
+| Surface | Syntax |
+|---|---|
+| JS / TS / TSX | `// TODO(chisel:item-N) CHISEL:<session-id> ...` |
+| Python | `# TODO(chisel:item-N) CHISEL:<session-id> ...` |
+| HTML | `<!-- TODO(chisel:item-N) CHISEL:<session-id> ... -->` |
+| CSS / SCSS | `/* TODO(chisel:item-N) CHISEL:<session-id> ... */` |
+| Go | `// TODO(chisel:item-N) CHISEL:<session-id> ...` |
+| Rust | `// TODO(chisel:item-N) CHISEL:<session-id> ...` |
+| Java | `// TODO(chisel:item-N) CHISEL:<session-id> ...` |
+| SQL | `-- TODO(chisel:item-N) CHISEL:<session-id> ...` |
+| YAML | `# TODO(chisel:item-N) CHISEL:<session-id> ...` |
+| Vue SFC `<script>` | `// TODO(chisel:item-N) CHISEL:<session-id> ...` |
+| Vue SFC `<template>` | `<!-- TODO(chisel:item-N) CHISEL:<session-id> ... -->` |
+| Svelte `<script>` | `// TODO(chisel:item-N) CHISEL:<session-id> ...` |
+| Svelte markup | `<!-- TODO(chisel:item-N) CHISEL:<session-id> ... -->` |
 
 ## Cleanup
 
