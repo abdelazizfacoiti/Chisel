@@ -6,9 +6,9 @@
 
 Plan tight. Mark intent. Let inline completion draft. Review every line.
 
-Chisel is an instruction and command pack for AI coding tools. It helps engineers use fewer chat-agent tokens by moving from "agent writes the whole feature" to "agent plans, places precise TODO markers, then stops."
+Chisel is an instruction and command pack for AI coding tools. It helps engineers use fewer chat-agent tokens and keep more control by moving from "agent writes the whole feature" to "agent plans, places precise TODO markers, then stops."
 
-The chat agent does the high-leverage work: understand the task, inspect the repo, produce a small plan, and place concrete inline markers. GitHub Copilot or another inline completion engine drafts from those markers. You review every generated line.
+The chat agent does the high-leverage work: understand the task, inspect the repo, produce a small plan, and place concrete inline markers. GitHub Copilot or another inline completion engine can draft from those markers, or you can implement them by hand. You review every generated line either way.
 
 Chisel v0 does not insert markers by itself. It installs provider-specific instructions that tell your coding agent how to plan, place markers, and stop before implementation.
 
@@ -31,6 +31,23 @@ Chisel creates a smaller loop:
 
 The goal is not to avoid review. The goal is to make review easier.
 
+## Who Chisel Is For
+
+Chisel is for engineers who want more control over AI-assisted coding.
+
+Use it when you want to:
+
+- Reduce chat-agent token usage across tools like Codex, Claude Code, GitHub Copilot, Cursor, Gemini, and similar AI coding tools.
+- Avoid having an agent write a whole feature in one large pass.
+- Keep the planning help from AI while still reviewing or writing the actual code yourself.
+- Use inline completion only where the change is clear and local.
+- Learn a codebase by seeing exactly where changes should happen, then implementing them by hand.
+- Practice coding with AI as a guide instead of full autopilot.
+
+Chisel is not only for people optimizing cost. It is also for people who enjoy coding, want to stay sharp, or want to learn by doing.
+
+AI plans. You decide how the code gets written.
+
 ## v0 Capabilities
 
 Chisel v0 works through provider instruction files. Behavior depends on how well the active agent follows those instructions.
@@ -39,6 +56,7 @@ Chisel v0 works through provider instruction files. Behavior depends on how well
 - Marker insertion workflow: the agent is instructed to insert tiny language-native TODO comments at relevant code locations after approval.
 - Stop-before-code rule: agent must not write the full implementation unless you explicitly leave Chisel mode.
 - Inline completion handoff: you use Copilot or another inline completion tool at each marker.
+- Hand-coding mode: you can ignore inline completion and implement each marker yourself, using Chisel as a guided map through the codebase.
 - Minimal session receipt: agent writes `.chisel/<session-id>.md` with task, files touched, item order, skipped items, and cleanup marker.
 - Safe cleanup convention: remove only comments containing the exact `CHISEL:<session-id>` marker.
 - Provider install pack: installer can drop the right instruction/command files for Codex, GitHub Copilot, Claude Code, Gemini, Cursor, and opencode.
