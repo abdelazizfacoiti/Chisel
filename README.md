@@ -36,7 +36,7 @@ Copy the provider file for your tool into the target project:
 | Tool | File to copy |
 |---|---|
 | GitHub Copilot | `.github/copilot-instructions.md` and `.github/prompts/chisel.prompt.md` |
-| Codex | `AGENTS.md` and `.codex/prompts/chisel.md` |
+| Codex | `AGENTS.md` and `.agents/skills/chisel/SKILL.md` |
 | Claude Code | `CLAUDE.md` and `.claude/commands/chisel.md` |
 | Gemini CLI | `GEMINI.md` |
 | Cursor | `.cursor/rules/chisel.mdc` |
@@ -49,8 +49,9 @@ Ready-to-copy versions live under `providers/`.
 Chisel installs `/chisel` where the assistant supports repo-local command files:
 
 - GitHub Copilot in VS Code: `.github/prompts/chisel.prompt.md`
-- Codex: `.codex/prompts/chisel.md`
 - Claude Code: `.claude/commands/chisel.md`
+
+Codex uses skills for reusable workflows. After installing the Codex target, invoke Chisel with `$chisel`, pick it from `/skills`, or say "use Chisel". Codex custom prompts are deprecated and user-local; `--with-codex-prompt` can add `~/.codex/prompts/chisel.md`, which appears as `/prompts:chisel` after restart.
 
 Cursor, Gemini, and opencode get always-on instruction files in this v0. They can still use the phrase "use Chisel", but this pack does not claim a native `/chisel` command there yet.
 

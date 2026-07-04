@@ -8,6 +8,7 @@
     "chisel": "./bin/chisel-install.js"
   },
   "files": [
+    ".codex-plugin/",
     "AGENTS.md",
     "README.md",
     "install.md",

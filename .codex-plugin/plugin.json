@@ -1,17 +1,7 @@
 {
   "name": "chisel",
   "version": "0.1.0",
-  "description": "Plan tight, place inline markers, complete with Copilot.",
-  "author": {
-    "name": "Chisel"
-  },
-  "license": "MIT",
-  "keywords": [
-    "productivity",
-    "copilot",
-    "tokens",
-    "planning"
-  ],
+  "description": "Plan tight, place TODO markers, complete with inline completion.",
   "skills": "./skills/",
   "interface": {
     "displayName": "Chisel",
@@ -22,7 +12,7 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Use Chisel: make a concise plan, ask approval, insert tiny CHISEL markers, then stop before implementation."
+      "Use Chisel: make a concise plan, ask approval, insert tiny TODO(chisel) markers, then stop before implementation."
     ],
     "brandColor": "#3F3F46"
   }

@@ -34,6 +34,8 @@ Flags:
 
 Provider ids: `copilot`, `codex`, `claude`, `gemini`, `cursor`, `opencode`.
 
+Codex note: documented reusable workflows are skills, not repo-local slash commands. The Codex install writes `.agents/skills/chisel/SKILL.md`. Invoke with `$chisel`, `/skills`, or "use Chisel". If you still want a deprecated user-local prompt, add `--with-codex-prompt` and restart Codex; it appears as `/prompts:chisel`.
+
 Copy one or more provider files into the repo where you want the workflow active.
 
 ## GitHub Copilot
@@ -51,15 +53,30 @@ In VS Code Copilot Chat, this should expose the `chisel` prompt file in the prom
 
 ```bash
 cp Chisel/providers/codex/AGENTS.md AGENTS.md
-mkdir -p .codex/prompts
+mkdir -p .codex .agents/skills/chisel
 cp Chisel/providers/codex/.codex/config.toml .codex/config.toml
-cp Chisel/providers/codex/.codex/prompts/chisel.md .codex/prompts/chisel.md
+cp Chisel/skills/chisel/SKILL.md .agents/skills/chisel/SKILL.md
 ```
 
-Then use:
+Then use one of:
 
 ```text
-/chisel improve the checkout form validation
+$chisel improve the checkout form validation
+/skills
+use Chisel for this task: improve the checkout form validation
+```
+
+Optional deprecated prompt command:
+
+```bash
+mkdir -p ~/.codex/prompts
+cp Chisel/providers/codex/.codex/prompts/chisel.md ~/.codex/prompts/chisel.md
+```
+
+After restart, invoke it as:
+
+```text
+/prompts:chisel improve the checkout form validation
 ```
 
 Codex plugin-shaped metadata is also available at:
