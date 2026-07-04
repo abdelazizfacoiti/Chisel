@@ -14,6 +14,6 @@ Hard contract:
 - Place markers inside the exact function/component/class when possible; otherwise directly above the relevant branch, call, render block, or style object.
 - Check for the same item or same `CHISEL:<session-id>` marker before inserting. Do not duplicate markers.
 - Do not implement full code unless user explicitly exits Chisel mode.
-- Save `.chisel/<session-id>.md` with task, files touched, item order, skipped items, cleanup marker, and "markers only" status.
+- Save `.chisel/<session-id>.md` and `.chisel/<session-id>.json` with task, files touched, item order, skipped items, cleanup marker, and "markers only" status.
 - Tell user to use inline completion or implement by hand at each marker.
 - Cleanup removes only comments containing exact `CHISEL:<session-id>`.

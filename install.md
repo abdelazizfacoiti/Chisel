@@ -1,6 +1,6 @@
 # Install Chisel
 
-Chisel v0 is an instruction and command pack, not a standalone app. The `chisel` command only installs provider files into a project.
+Chisel v0.2 is an instruction and command pack with a lightweight local trust layer. The `chisel` command installs provider files, scans sessions, previews cleanup, and checks install health.
 
 Chisel session notes are local by default. Consider adding `.chisel/` to `.gitignore` unless your team wants to review Chisel receipts.
 
@@ -10,6 +10,12 @@ Run from the repo where you want Chisel active:
 
 ```bash
 npx -y github:abdelazizfacoiti/Chisel -- --only codex
+```
+
+The clearer v0.2 command form is:
+
+```bash
+npx -y github:abdelazizfacoiti/Chisel -- install --only codex
 ```
 
 Install another provider:
@@ -38,6 +44,10 @@ node bin/chisel-install.js --only codex --target /path/to/project --dry-run
 - `--list-providers` prints supported provider ids.
 - `--print <provider>` prints the files that would be installed for one provider.
 - `--doctor` checks source files and the target repo for common install issues.
+- `--provider <provider|all>` narrows `doctor` checks.
+- `status [session-id]` scans `.chisel/` receipts and current repo markers.
+- `cleanup <session-id>` previews removal of exact session marker lines.
+- `cleanup <session-id> --apply` removes only lines containing `CHISEL:<session-id>`.
 
 Provider ids: `copilot`, `codex`, `claude`, `gemini`, `cursor`, `opencode`.
 
@@ -69,7 +79,24 @@ Check a repo after installing:
 
 ```bash
 npx -y github:abdelazizfacoiti/Chisel -- --doctor
+npx -y github:abdelazizfacoiti/Chisel -- doctor --provider all
 ```
+
+Inspect a Chisel session:
+
+```bash
+npx -y github:abdelazizfacoiti/Chisel -- status
+npx -y github:abdelazizfacoiti/Chisel -- status 2026-07-04-a1b2
+```
+
+Preview and apply cleanup:
+
+```bash
+npx -y github:abdelazizfacoiti/Chisel -- cleanup 2026-07-04-a1b2
+npx -y github:abdelazizfacoiti/Chisel -- cleanup 2026-07-04-a1b2 --apply
+```
+
+Cleanup is literal: dry-run previews matching lines, and `--apply` removes only lines containing the exact `CHISEL:<session-id>` string.
 
 ## What Gets Installed
 
@@ -206,7 +233,7 @@ If you do not want `npx`, copy the files listed in "What Gets Installed" from `p
 
 ## Uninstall
 
-Chisel v0 installs plain text instruction files. To uninstall, remove the provider files that were added for your tool.
+Chisel v0.2 installs plain text instruction files. To uninstall, remove the provider files that were added for your tool.
 
 For example, for Codex:
 

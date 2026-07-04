@@ -10,13 +10,13 @@ Chisel is an instruction and command pack for AI coding tools. It helps engineer
 
 The chat agent does the high-leverage work: understand the task, inspect the repo, produce a small plan, and place concrete inline markers. GitHub Copilot or another inline completion engine can draft from those markers, or you can implement them by hand. You review every generated line either way.
 
-Chisel v0 does not run its own deterministic marker-insertion engine. It installs provider-specific instructions that tell your coding agent how to plan, place markers, and stop before implementation.
+Chisel v0.2 does not run its own deterministic marker-insertion engine. It installs provider-specific instructions that tell your coding agent how to plan, place markers, and stop before implementation. It also includes local status, cleanup, and doctor commands so sessions are easier to trust.
 
 ## Status
 
-Chisel is currently v0: an instruction and command pack.
+Chisel is currently v0.2: an instruction and command pack with a lightweight local trust layer.
 
-It does not run its own code-mod engine yet. It installs instructions, commands, skills, and rules for supported AI coding tools.
+It does not run its own code-mod marker insertion engine yet. It installs instructions, commands, skills, and rules for supported AI coding tools, then provides deterministic local scan, status, cleanup, and install health checks.
 
 ## Why Chisel?
 
@@ -48,17 +48,19 @@ Chisel is not only for people optimizing cost. It is also for people who enjoy c
 
 AI plans. You decide how the code gets written.
 
-## v0 Capabilities
+## v0.2 Capabilities
 
-Chisel v0 works through provider instruction files. Behavior depends on how well the active agent follows those instructions.
+Chisel v0.2 works through provider instruction files plus local trust-layer commands. Marker placement still depends on how well the active agent follows those instructions.
 
 - Plan-first workflow: agent creates a short implementation plan and asks for approval before editing.
 - Marker insertion workflow: the agent is instructed to insert tiny language-native TODO comments at relevant code locations after approval.
 - Stop-before-code rule: agent must not write the full implementation unless you explicitly leave Chisel mode.
 - Inline completion handoff: you use Copilot or another inline completion tool at each marker.
 - Hand-coding mode: you can ignore inline completion and implement each marker yourself, using Chisel as a guided map through the codebase.
-- Minimal session receipt: agent writes `.chisel/<session-id>.md` with task, files touched, item order, skipped items, and cleanup marker.
-- Safe cleanup convention: remove only comments containing the exact `CHISEL:<session-id>` marker.
+- Session receipts: agent writes `.chisel/<session-id>.md` and `.chisel/<session-id>.json` with task, files touched, item order, skipped items, and cleanup marker.
+- Deterministic status: `chisel status [session-id]` scans receipts and current repo markers.
+- Safe cleanup command: `chisel cleanup <session-id>` previews exact marker removal, and `--apply` removes only lines containing `CHISEL:<session-id>`.
+- Provider doctor: `chisel doctor --provider all` checks installed provider files and reports missing or stale files.
 - Provider install pack: installer can drop the right instruction/command files for Codex, GitHub Copilot, Claude Code, Gemini, Cursor, and opencode.
 - Codex plugin metadata: `.codex-plugin/plugin.json` is included for packaging Chisel as an installable Codex plugin later.
 
@@ -89,7 +91,7 @@ After approval, the agent should place markers near the relevant code:
 // TODO(chisel:item-3) CHISEL:2026-07-04-a1b2 Disable submit while invalid.
 ```
 
-Now trigger inline completion at each marker, review the diff, run tests, then remove markers containing `CHISEL:2026-07-04-a1b2`.
+Now trigger inline completion at each marker, or implement by hand, review the diff, run tests, then remove markers containing `CHISEL:2026-07-04-a1b2`.
 
 Example marker inside `src/components/SignupForm.tsx`:
 
@@ -110,8 +112,9 @@ function handleSubmit(event: FormEvent) {
 3. You approve the plan.
 4. Agent inspects files and inserts `TODO(chisel:item-N) CHISEL:<session-id>` markers.
 5. Agent stops before implementation.
-6. You trigger inline completion at each marker.
-7. You review the diff, run tests, then remove Chisel markers.
+6. You trigger inline completion at each marker or implement by hand.
+7. You review the diff and run tests.
+8. You inspect or clean the session with `chisel status` and `chisel cleanup`.
 
 ## Install
 
@@ -119,6 +122,12 @@ From the repo where you want Chisel active:
 
 ```bash
 npx -y github:abdelazizfacoiti/Chisel -- --only codex
+```
+
+The clearer v0.2 form also works:
+
+```bash
+npx -y github:abdelazizfacoiti/Chisel -- install --only codex
 ```
 
 For all install options, providers, flags, uninstall steps, and manual copy commands, see [install.md](./install.md).
@@ -139,6 +148,30 @@ Session notes are local by default. Consider adding `.chisel/` to `.gitignore` u
 Codex note: documented reusable workflows are skills. Repo-local `/chisel` is not the Codex path. Use `$chisel` or `/skills`. If you install `--with-codex-prompt`, restart Codex and invoke `/prompts:chisel`.
 
 Plugin note: Chisel includes `.codex-plugin/plugin.json` with `skills: "./skills/"` so the same skill can be packaged as a Codex plugin.
+
+## Local Commands
+
+Show active receipts and markers:
+
+```bash
+chisel status
+chisel status 2026-07-04-a1b2
+```
+
+Preview cleanup, then apply it:
+
+```bash
+chisel cleanup 2026-07-04-a1b2
+chisel cleanup 2026-07-04-a1b2 --apply
+```
+
+Check installed provider files:
+
+```bash
+chisel doctor --provider all
+```
+
+`status` scans the repo literally. If your docs contain Chisel marker examples, those examples can appear as markers. `cleanup` is also literal: it removes lines containing the exact `CHISEL:<session-id>` string only when `--apply` is passed.
 
 ## Marker Format
 
@@ -208,7 +241,7 @@ Do not use Chisel for:
 
 Chisel does not know exact Copilot usage or billing. It should not claim exact savings. It reduces expensive chat-agent usage by shifting implementation drafting to inline completion.
 
-Chisel v0 is not a full CLI app. The included `chisel` command only installs provider files. A future version can add deterministic session JSON, status, cleanup, and marker insertion.
+Chisel v0.2 is not a full CLI app. The included `chisel` command installs provider files, scans markers, reports status, cleans exact session markers, and checks provider install health. A future version can add deterministic marker insertion.
 
 ## What Chisel Is Not
 
@@ -220,9 +253,6 @@ Chisel v0 is not a full CLI app. The included `chisel` command only installs pro
 
 ## Roadmap
 
-- Deterministic marker scan and cleanup.
-- `chisel status`.
-- Expand `chisel doctor` with provider-specific checks.
-- Session receipts as JSON in addition to Markdown.
 - Safer merge behavior for existing provider instruction files.
 - Optional code-mod based marker insertion.
+- Agent behavior eval fixtures across real tasks.

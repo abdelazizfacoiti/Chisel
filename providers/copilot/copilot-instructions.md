@@ -14,7 +14,7 @@ Workflow:
 6. Insert tiny inline comments at target locations.
 7. Stop before writing full code.
 8. Tell user to trigger inline completion or implement by hand at each marker and review the generated code.
-9. Save `.chisel/<session-id>.md` with task, files touched, item order with file/line, skipped items, cleanup marker, and "markers only" status.
+9. Save `.chisel/<session-id>.md` and `.chisel/<session-id>.json` with task, files touched, item order with file/line, skipped items, cleanup marker, and "markers only" status.
 
 Marker format:
 

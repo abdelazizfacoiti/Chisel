@@ -1,18 +1,18 @@
 {
   "name": "chisel",
-  "version": "0.1.0",
-  "description": "Plan tight, place TODO markers, complete with inline completion.",
+  "version": "0.2.0",
+  "description": "Plan tight, place TODO markers, complete with inline completion or by hand.",
   "skills": "./skills/",
   "interface": {
     "displayName": "Chisel",
-    "shortDescription": "Plan once. Mark intent. Complete inline.",
-    "longDescription": "Token-lean implementation workflow for engineers who review every generated line.",
+    "shortDescription": "Plan once. Mark intent. Complete locally.",
+    "longDescription": "Token-lean implementation workflow for engineers who review every generated line, use inline completion locally, or implement planned changes by hand.",
     "category": "Productivity",
     "capabilities": [
       "Write"
     ],
     "defaultPrompt": [
-      "Use Chisel: make a concise plan, ask approval, insert tiny TODO(chisel) markers, then stop before implementation."
+      "Use Chisel: make a concise plan, ask approval, insert tiny TODO(chisel) markers, save session receipts, then stop before implementation."
     ],
     "brandColor": "#3F3F46"
   }

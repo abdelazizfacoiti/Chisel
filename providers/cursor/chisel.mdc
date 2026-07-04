@@ -19,7 +19,7 @@ Workflow:
 - Avoid vague markers like "improve UI", "stronger hero", or "polish card".
 - Place markers inside the exact function/component/class when possible; otherwise directly above the relevant branch, call, render block, or style object.
 - Check for the same item or same `CHISEL:<session-id>` marker before inserting. Do not duplicate markers.
-- Save minimal `.chisel/<session-id>.md` with task, files touched, item order, skipped items, cleanup marker, and "markers only" status.
+- Save minimal `.chisel/<session-id>.md` and `.chisel/<session-id>.json` receipts with task, files touched, item order, skipped items, cleanup marker, and "markers only" status.
 - Stop before implementation.
 - Tell user to use inline completion or implement by hand at each marker and review generated code.
 

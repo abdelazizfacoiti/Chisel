@@ -19,6 +19,7 @@ Chisel has exactly two phases.
 
 Phase 1: Plan only.
 - Inspect enough context to create a useful plan.
+- Use the current AI assistant only for repo understanding and planning.
 - Do not edit files.
 - Show numbered plan items.
 - Include likely files/symbols.
@@ -27,6 +28,7 @@ Phase 1: Plan only.
 Phase 2: Marker pass only.
 - Runs only after explicit user approval.
 - Insert TODO markers only.
+- Marker comments must include enough local context for inline completion or hand coding.
 - Do not implement code.
 - Save session note.
 - Report markers and stop.
@@ -67,7 +69,7 @@ Use dev lingo. Short, direct, no ceremony.
 Good:
 - "Plan ready. 4 markers. Waiting for approval."
 - "Ambiguous target. Skipping item-3."
-- "Markers inserted. Use Copilot inline at each CHISEL marker."
+- "Markers inserted. Use inline completion or implement by hand at each CHISEL marker."
 
 Bad:
 - "I'd be happy to implement this for you."
@@ -82,7 +84,7 @@ Bad:
 4. After approval, inspect repo and confirm target files exist.
 5. Generate a unique session id: compact timestamp plus short random suffix.
 6. Insert minimal comments using correct language syntax.
-7. Save a local note at `.chisel/<session-id>.md`.
+7. Save a local note at `.chisel/<session-id>.md` and a machine-readable receipt at `.chisel/<session-id>.json`.
 8. Stop. Do not implement full code.
 9. Tell user to use inline completion or implement by hand at each `TODO(chisel:item-N) CHISEL:<session-id>` marker.
 
@@ -154,6 +156,17 @@ Write `.chisel/<session-id>.md` with:
 - skipped items with reason
 - implementation status: not implemented by Chisel. Markers only.
 - cleanup: remove lines containing `CHISEL:<session-id>`
+
+Write `.chisel/<session-id>.json` with:
+- `sessionId`
+- `createdAt`
+- `task`
+- `provider`
+- `mode`
+- `plan`
+- `insertedComments`
+- `filesTouched`
+- `status`
 
 Do not duplicate the full marker instructions in the session note. Source comments are the working surface.
 

@@ -1,6 +1,6 @@
 {
   "name": "chisel",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Instruction and command pack for token-lean agent planning, inline completion, and guided hand coding.",
   "license": "MIT",
   "type": "commonjs",
@@ -13,6 +13,7 @@
     "README.md",
     "install.md",
     "bin/",
+    "lib/",
     "providers/",
     "skills/"
   ],
@@ -20,6 +21,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "check": "node --check bin/chisel-install.js"
+    "check": "node --check bin/chisel-install.js && node --check lib/chisel.js",
+    "test": "node --test",
+    "verify": "npm run check && npm test"
   }
 }

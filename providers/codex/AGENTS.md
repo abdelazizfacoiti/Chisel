@@ -9,7 +9,7 @@ Workflow:
 - Ask: "Approve marker pass?"
 - After approval, inspect target files.
 - Insert only tiny `TODO(chisel:item-N) CHISEL:<session-id>` comments.
-- Save `.chisel/<session-id>.md` with task, files touched, item order with file/line, skipped items, cleanup marker, and "markers only" status.
+- Save `.chisel/<session-id>.md` and `.chisel/<session-id>.json` with task, files touched, item order with file/line, skipped items, cleanup marker, and "markers only" status.
 - Stop before full implementation.
 - Tell user to use inline completion or implement by hand at each marker.
 

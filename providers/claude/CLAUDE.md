@@ -9,7 +9,7 @@ Process:
 4. Do not edit files before explicit approval.
 5. After approval, inspect repo.
 6. Insert tiny `TODO(chisel:item-N) CHISEL:<session-id>` comments at target locations using language-native comment syntax.
-7. Save minimal `.chisel/<session-id>.md` with task, files touched, item order, skipped items, cleanup marker, and "markers only" status.
+7. Save minimal `.chisel/<session-id>.md` and `.chisel/<session-id>.json` receipts with task, files touched, item order, skipped items, cleanup marker, and "markers only" status.
 8. Stop before writing full code.
 9. Tell user to use inline completion or implement by hand at each marker.
 
