@@ -8,14 +8,18 @@ Use Chisel when user says "use Chisel", "chisel this", "plan then mark", or asks
 Style: dev lingo. Short. Exact. No fluff.
 
 Workflow:
-- Create concise numbered plan.
-- Ask approval before edits.
+- Chisel has two phases: plan-only, then marker-pass-only.
+- Create concise numbered plan with likely files/symbols.
+- Ask: "Approve marker pass?"
+- Do not edit files before explicit approval.
 - After approval, inspect repo.
 - Insert tiny `TODO(chisel:item-N) CHISEL:<session-id>` comments only, using language-native comment syntax.
 - Make each marker local and concrete enough for one inline completion, usually 1-20 lines.
 - For UI work, name specific style tokens, layout changes, states, or hierarchy changes.
 - Avoid vague markers like "improve UI", "stronger hero", or "polish card".
-- Save minimal `.chisel/<session-id>.md` with task, files touched, item order, skipped items, and cleanup marker.
+- Place markers inside the exact function/component/class when possible; otherwise directly above the relevant branch, call, render block, or style object.
+- Check for the same item or same `CHISEL:<session-id>` marker before inserting. Do not duplicate markers.
+- Save minimal `.chisel/<session-id>.md` with task, files touched, item order, skipped items, cleanup marker, and "markers only" status.
 - Stop before implementation.
 - Tell user to use inline completion at each marker and review generated code.
 

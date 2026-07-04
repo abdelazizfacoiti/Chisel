@@ -3,12 +3,13 @@ Use Chisel when user asks for token-lean implementation, Copilot markers, "plan 
 Voice: dev lingo, short, direct.
 
 Workflow:
-- Make concise numbered plan.
-- Include likely files/symbols.
-- Ask approval before editing.
+- Chisel has two phases: plan-only, then marker-pass-only.
+- No file edits before explicit approval.
+- Make concise numbered plan and include likely files/symbols.
+- Ask: "Approve marker pass?"
 - After approval, inspect target files.
 - Insert only tiny `TODO(chisel:item-N) CHISEL:<session-id>` comments.
-- Save `.chisel/<session-id>.md` with task, files touched, item order with file/line, skipped items, and cleanup marker.
+- Save `.chisel/<session-id>.md` with task, files touched, item order with file/line, skipped items, cleanup marker, and "markers only" status.
 - Stop before full implementation.
 - Tell user to use GitHub Copilot inline completion at each marker.
 
@@ -18,6 +19,8 @@ Marker quality:
 - Text must name the concrete code move: variable, prop, style token, branch, validation rule, component state, or test case.
 - For UI work, include concrete visual intent: spacing value, component state, hierarchy, color role, typography role, or interaction behavior.
 - Avoid vague markers like "improve UI", "stronger hero treatment", "layout direction", or "polish card".
+- Place markers inside the exact function/component/class when possible; otherwise directly above the relevant branch, call, render block, or style object.
+- Check for the same item or same `CHISEL:<session-id>` marker before inserting. Do not duplicate markers.
 
 Do not:
 - Write full code in Chisel mode.
