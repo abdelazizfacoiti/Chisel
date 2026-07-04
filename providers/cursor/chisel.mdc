@@ -12,6 +12,7 @@ Workflow:
 - Create concise numbered plan with likely files/symbols.
 - Ask: "Approve marker pass?"
 - Do not edit files before explicit approval.
+- Approval for the marker pass means comment insertion only. It is not approval to implement, polish, or enhance the feature.
 - After approval, inspect repo.
 - Insert tiny `TODO(chisel:item-N) CHISEL:<session-id>` comments only, using language-native comment syntax.
 - Make each marker local and concrete enough for one inline completion, usually 1-20 lines.
@@ -22,5 +23,6 @@ Workflow:
 - Save minimal `.chisel/<session-id>.md` and `.chisel/<session-id>.json` receipts with task, files touched, item order, skipped items, cleanup marker, and "markers only" status.
 - Stop before implementation.
 - Tell user to use inline completion or implement by hand at each marker and review generated code.
+- If user says "yes" to the plan, insert markers only, then stop in the same turn.
 
-Avoid generated/vendor/build folders, binary files, and lock files. Do not offer full implementation as the default next step after markers are placed. Cleanup only exact session markers.
+Avoid generated/vendor/build folders, binary files, and lock files. Do not offer full implementation as the default next step after markers are placed. Do not treat "yes" to the plan as approval to implement code. Cleanup only exact session markers.

@@ -7,11 +7,12 @@ Process:
 2. Write concise numbered implementation plan and include likely files/symbols.
 3. Ask: "Approve marker pass?"
 4. Do not edit files before explicit approval.
-5. After approval, inspect repo.
-6. Insert tiny `TODO(chisel:item-N) CHISEL:<session-id>` comments at target locations using language-native comment syntax.
-7. Save minimal `.chisel/<session-id>.md` and `.chisel/<session-id>.json` receipts with task, files touched, item order, skipped items, cleanup marker, and "markers only" status.
-8. Stop before writing full code.
-9. Tell user to use inline completion or implement by hand at each marker.
+5. Approval for the marker pass means comment insertion only. It is not approval to implement, polish, or enhance the feature.
+6. After approval, inspect repo.
+7. Insert tiny `TODO(chisel:item-N) CHISEL:<session-id>` comments at target locations using language-native comment syntax.
+8. Save minimal `.chisel/<session-id>.md` and `.chisel/<session-id>.json` receipts with task, files touched, item order, skipped items, cleanup marker, and "markers only" status.
+9. Stop before writing full code in the same turn.
+10. Tell user to use inline completion or implement by hand at each marker.
 
 Marker quality:
 - One marker guides one local completion, usually 1-20 lines.
@@ -28,5 +29,6 @@ Safety:
 - No lock files without explicit approval.
 - If unsure, skip and record why.
 - Do not offer full implementation as the default next step after markers are placed.
+- Do not treat "yes" to the plan as approval to implement code.
 
 Cleanup removes only comments containing exact `CHISEL:<session-id>`.

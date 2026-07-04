@@ -5,6 +5,7 @@ Voice: dev lingo, short, direct.
 Workflow:
 - Chisel has two phases: plan-only, then marker-pass-only.
 - No file edits before explicit approval.
+- Approval for the marker pass means comment insertion only. It is not approval to implement, polish, or enhance the feature.
 - Make concise numbered plan and include likely files/symbols.
 - Ask: "Approve marker pass?"
 - After approval, inspect target files.
@@ -12,6 +13,7 @@ Workflow:
 - Save `.chisel/<session-id>.md` and `.chisel/<session-id>.json` with task, files touched, item order with file/line, skipped items, cleanup marker, and "markers only" status.
 - Stop before full implementation.
 - Tell user to use inline completion or implement by hand at each marker.
+- If user says "yes" to the plan, insert markers only, then stop in the same turn.
 
 Marker quality:
 - One marker guides one local completion, usually 1-20 lines.
@@ -29,6 +31,7 @@ Do not:
 - Touch lock files unless explicitly approved.
 - Guess aggressively when target location is unclear.
 - Offer full implementation as the default next step after markers are placed.
+- Treat "yes" to the plan as approval to write code.
 
 Cleanup: remove only comments containing exact `CHISEL:<session-id>`.
 

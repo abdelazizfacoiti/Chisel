@@ -173,6 +173,18 @@ chisel doctor --provider all
 
 `status` scans the repo literally. If your docs contain Chisel marker examples, those examples can appear as markers. `cleanup` is also literal: it removes lines containing the exact `CHISEL:<session-id>` string only when `--apply` is passed.
 
+## Troubleshooting
+
+If an agent starts implementing code right after you approve the marker pass, that agent is ignoring the core Chisel rule. In Chisel, `yes` means "insert comments only", not "implement the feature".
+
+Refresh the installed provider files in the target repo after upgrading Chisel:
+
+```bash
+npx -y github:abdelazizfacoiti/Chisel -- install --only codex --force
+```
+
+Swap `codex` for the provider you are using.
+
 ## Marker Format
 
 TypeScript, JavaScript, Java, C#, Kotlin:

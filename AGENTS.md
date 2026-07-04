@@ -5,6 +5,7 @@ Style: dev lingo. Short. Exact. No ceremony.
 Hard contract:
 - Chisel has two phases: plan-only, then marker-pass-only.
 - No file edits before explicit approval.
+- Approval for the marker pass means comment insertion only. It is not approval to implement or polish the feature.
 - Plan must be concise, numbered, and include likely files/symbols.
 - After approval, inspect repo and insert only tiny `TODO(chisel:item-N) CHISEL:<session-id>` comments.
 - Use language-native comment syntax.
@@ -17,3 +18,4 @@ Hard contract:
 - Save `.chisel/<session-id>.md` and `.chisel/<session-id>.json` with task, files touched, item order, skipped items, cleanup marker, and "markers only" status.
 - Tell user to use inline completion or implement by hand at each marker.
 - Cleanup removes only comments containing exact `CHISEL:<session-id>`.
+- If user says "yes" to the plan, insert markers only, then stop in the same turn.

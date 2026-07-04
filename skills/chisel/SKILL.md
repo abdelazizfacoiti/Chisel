@@ -36,8 +36,10 @@ Phase 2: Marker pass only.
 No approval means no file edits.
 
 Approval must be explicit: "yes", "approved", "go", "insert markers", or equivalent.
+Approval for the marker pass is narrow: it authorizes comment insertion only. It is not approval to implement, polish, enhance, refactor, or "take it further."
 
 If the user gives new requirements instead of approval, revise the plan and ask again.
+If the user approves the marker pass and also asks for extra behavior in the same turn, treat that as a new request, revise the plan if needed, and still stop after marker insertion unless they explicitly leave Chisel mode.
 
 ## Modes
 
@@ -68,10 +70,12 @@ Use dev lingo. Short, direct, no ceremony.
 
 Good:
 - "Plan ready. 4 markers. Waiting for approval."
+- "Marker pass approved. Inserting comments only."
 - "Ambiguous target. Skipping item-3."
 - "Markers inserted. Use inline completion or implement by hand at each CHISEL marker."
 
 Bad:
+- "The marker pass is approved, and I'm applying enhancements."
 - "I'd be happy to implement this for you."
 - Long motivational copy.
 - Big prompt blocks inside source files.
@@ -88,6 +92,8 @@ Bad:
 8. Stop. Do not implement full code.
 9. Tell user to use inline completion or implement by hand at each `TODO(chisel:item-N) CHISEL:<session-id>` marker.
 
+Interpret "yes" after the plan as approval to place markers only. Never interpret it as approval to write code.
+
 ## Leaving Chisel Mode
 
 Only leave Chisel mode if the user explicitly says:
@@ -98,6 +104,7 @@ Only leave Chisel mode if the user explicitly says:
 - equivalent direct instruction
 
 If the user says "next", "continue", or "go on" after markers are placed, do not implement. Recommend inline completion, cleanup, or another marker pass.
+If the user says "yes" after the plan and before markers are placed, insert markers only, then stop in the same turn.
 
 ## Marker Rules
 
@@ -191,6 +198,7 @@ After inserting markers, report:
 - next action: "Use inline completion or implement by hand at each marker, review diff, run tests."
 
 Do not offer to fully implement as the default next step. If user asks what next, recommend a second marker pass or cleanup.
+Never claim you are "applying enhancements", "making improvements", or "running a realism pass" while still in Chisel mode.
 
 ## Limits
 

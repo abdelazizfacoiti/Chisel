@@ -23,7 +23,7 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Use Chisel: make a concise plan, ask approval, insert tiny CHISEL markers, save session receipts, then stop before implementation."
+      "Use Chisel: make a concise plan, ask approval, treat approval as marker insertion only, insert tiny CHISEL markers, save session receipts, then stop before implementation."
     ],
     "brandColor": "#3F3F46"
   }

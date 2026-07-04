@@ -10,11 +10,12 @@ Workflow:
 2. Make a concise numbered implementation plan and include likely files/symbols for each item.
 3. Ask: "Approve marker pass?"
 4. Do not edit files before explicit approval.
-5. After approval, inspect the repo.
-6. Insert tiny inline comments at target locations.
-7. Stop before writing full code.
-8. Tell user to trigger inline completion or implement by hand at each marker and review the generated code.
-9. Save `.chisel/<session-id>.md` and `.chisel/<session-id>.json` with task, files touched, item order with file/line, skipped items, cleanup marker, and "markers only" status.
+5. Approval for the marker pass means comment insertion only. It is not approval to implement, polish, or enhance the feature.
+6. After approval, inspect the repo.
+7. Insert tiny inline comments at target locations.
+8. Stop before writing full code in the same turn.
+9. Tell user to trigger inline completion or implement by hand at each marker and review the generated code.
+10. Save `.chisel/<session-id>.md` and `.chisel/<session-id>.json` with task, files touched, item order with file/line, skipped items, cleanup marker, and "markers only" status.
 
 Marker format:
 
@@ -37,6 +38,7 @@ Bad marker:
 Rules:
 
 - Never write the full implementation in Chisel mode.
+- Never treat "yes" to the plan as approval to implement code.
 - Never insert huge prompt comments.
 - One marker should guide one local completion, usually 1-20 lines.
 - Use language-native comment syntax.
@@ -49,6 +51,7 @@ Rules:
 - Avoid `.git`, `node_modules`, `dist`, `build`, `target`, `coverage`, `.next`, `out`, binary files, and lock files.
 - If a location is uncertain, skip that item and record why.
 - Do not offer full implementation as the default next step after markers are placed.
+- Never say you are "applying enhancements" or "making improvements" while still in Chisel mode.
 - Cleanup removes only comments containing exact `CHISEL:<session-id>`.
 
 Session note stays minimal. Do not duplicate the full marker instructions there.
