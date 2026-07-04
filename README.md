@@ -1,5 +1,9 @@
 # Chisel
 
+<p align="center">
+  <img src="./assets/chisel-cover.png" alt="Chisel vintage programming book cover" width="520">
+</p>
+
 Plan tight. Mark intent. Let inline completion draft. Review every line.
 
 Chisel is an instruction and command pack for AI coding tools. It helps engineers spend fewer chat-agent tokens by moving from "agent writes the whole feature" to "agent plans, places precise TODO markers, then stops."
