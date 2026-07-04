@@ -1,7 +1,7 @@
 # Chisel
 
 <p align="center">
-  <img src="./assets/chisel-cover.png" alt="Chisel vintage programming book cover" width="520">
+  <img src="./assets/chisel-logo.png" alt="Chisel logo" width="360">
 </p>
 
 Plan tight. Mark intent. Let inline completion draft. Review every line.
