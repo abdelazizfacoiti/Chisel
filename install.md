@@ -39,6 +39,14 @@ node bin/chisel-install.js --only codex --target /path/to/project --dry-run
 
 Provider ids: `copilot`, `codex`, `claude`, `gemini`, `cursor`, `opencode`.
 
+## Existing Files
+
+By default, Chisel does not overwrite existing provider files.
+
+If a target file already exists, the installer skips it unless you pass `--force`.
+
+Use `--dry-run` before `--force` if you want to inspect what would change.
+
 ## Inspect Before Installing
 
 List supported providers:
@@ -191,3 +199,17 @@ use Chisel for this task: improve the checkout form validation
 ## Manual Copy
 
 If you do not want `npx`, copy the files listed in "What Gets Installed" from `providers/` and `skills/` into your target repo.
+
+## Uninstall
+
+Chisel v0 installs plain text instruction files. To uninstall, remove the provider files that were added for your tool.
+
+For example, for Codex:
+
+```bash
+rm -rf .agents/skills/chisel
+rm -f .codex/config.toml
+rm -f AGENTS.md
+```
+
+Only remove shared files like `AGENTS.md`, `CLAUDE.md`, or `.github/copilot-instructions.md` if they were created only for Chisel.
