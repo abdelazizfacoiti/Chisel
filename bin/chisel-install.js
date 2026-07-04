@@ -158,9 +158,17 @@ function doctor(opts) {
   if (failed) process.exitCode = 1;
 }
 
-function postInstallHint(ids, opts) {
+function postInstallHint(ids, opts, summary) {
   if (opts.dryRun) return;
-  process.stdout.write('\nChisel installed.\n\n');
+  process.stdout.write('\n');
+  if (summary.written === 0 && summary.skippedExists > 0) {
+    process.stdout.write('Chisel already installed. No files changed.\n');
+    process.stdout.write('Use `--force` to refresh installed files from this version.\n\n');
+  } else if (summary.written > 0 && summary.skippedExists > 0) {
+    process.stdout.write('Chisel updated. Some files were already present and were left unchanged.\n\n');
+  } else {
+    process.stdout.write('Chisel installed.\n\n');
+  }
   if (ids.includes('codex')) {
     process.stdout.write('Try Codex:\n  $chisel add validation to the checkout form\n\n');
   } else if (ids.includes('claude')) {
@@ -191,11 +199,19 @@ function main(argv) {
   }
   const ids = opts.all ? Object.keys(TARGETS) : opts.only;
   if (!ids.length) throw new Error(`choose --only <target> or --all\n\n${usage()}`);
+  const summary = {
+    written: 0,
+    skippedExists: 0,
+    wouldWrite: 0,
+  };
   for (const id of ids) {
     const files = providerFiles(id);
     process.stdout.write(`chisel ${id}${opts.dryRun ? ' (dry run)' : ''}\n`);
     for (const [src, dest] of files) {
       const result = copyFile(src, dest, opts);
+      if (result.status === 'written') summary.written += 1;
+      else if (result.status === 'skipped-exists') summary.skippedExists += 1;
+      else if (result.status === 'would-write') summary.wouldWrite += 1;
       process.stdout.write(`  ${result.status}: ${result.destRel}\n`);
     }
   }
@@ -203,11 +219,14 @@ function main(argv) {
     process.stdout.write(`chisel codex-prompt${opts.dryRun ? ' (dry run)' : ''}\n`);
     for (const [src, dest] of OPTIONAL_TARGETS.codexPrompt) {
       const result = copyFile(src, dest, opts);
+      if (result.status === 'written') summary.written += 1;
+      else if (result.status === 'skipped-exists') summary.skippedExists += 1;
+      else if (result.status === 'would-write') summary.wouldWrite += 1;
       process.stdout.write(`  ${result.status}: ${result.destRel}\n`);
     }
     process.stdout.write('  note: Codex custom prompts are deprecated; invoke as /prompts:chisel after restart.\n');
   }
-  postInstallHint(ids, opts);
+  postInstallHint(ids, opts, summary);
 }
 
 try {
