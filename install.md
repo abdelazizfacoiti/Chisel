@@ -33,8 +33,31 @@ node bin/chisel-install.js --only codex --target /path/to/project --dry-run
 - `--dry-run` prints writes without touching files.
 - `--force` overwrites existing provider files.
 - `--with-codex-prompt` also installs deprecated Codex custom prompt support at `~/.codex/prompts/chisel.md`.
+- `--list-providers` prints supported provider ids.
+- `--print <provider>` prints the files that would be installed for one provider.
+- `--doctor` checks source files and the target repo for common install issues.
 
 Provider ids: `copilot`, `codex`, `claude`, `gemini`, `cursor`, `opencode`.
+
+## Inspect Before Installing
+
+List supported providers:
+
+```bash
+npx -y github:abdelazizfacoiti/Chisel -- --list-providers
+```
+
+Print the files for one provider:
+
+```bash
+npx -y github:abdelazizfacoiti/Chisel -- --print codex
+```
+
+Check a repo after installing:
+
+```bash
+npx -y github:abdelazizfacoiti/Chisel -- --doctor
+```
 
 ## What Gets Installed
 

@@ -10,7 +10,11 @@ Chisel is an instruction and command pack for AI coding tools. It helps engineer
 
 The expensive agent does the high-leverage work: understand the task, inspect the repo, produce a small plan, and place concrete inline markers. GitHub Copilot or another inline completion engine drafts from those markers. You review every generated line.
 
-## What Works Today
+Chisel v0 does not insert markers by itself. It installs provider-specific instructions that tell your coding agent how to plan, place markers, and stop before implementation.
+
+## v0 Capabilities
+
+Chisel v0 works through provider instruction files. Behavior depends on how well the active agent follows those instructions.
 
 - Plan-first workflow: agent creates a short implementation plan and asks for approval before editing.
 - Marker insertion: agent inserts tiny language-native TODO comments at the right code locations.
@@ -20,6 +24,35 @@ The expensive agent does the high-leverage work: understand the task, inspect th
 - Safe cleanup convention: remove only comments containing the exact `CHISEL:<session-id>` marker.
 - Provider install pack: installer can drop the right instruction/command files for Codex, GitHub Copilot, Claude Code, Gemini, Cursor, and opencode.
 - Codex plugin metadata: `.codex-plugin/plugin.json` is included for packaging Chisel as an installable Codex plugin later.
+
+## 60-Second Example
+
+User:
+
+```text
+Use Chisel for this task: add email validation to signup.
+```
+
+Agent:
+
+```text
+Plan ready:
+1. Validate email format before submit.
+2. Show inline error message.
+3. Disable submit while invalid.
+
+Approve marker pass?
+```
+
+After approval, markers land near the right code:
+
+```ts
+// TODO(chisel:item-1) CHISEL:2026-07-04-a1b2 Validate email format before submit.
+// TODO(chisel:item-2) CHISEL:2026-07-04-a1b2 Show inline error message.
+// TODO(chisel:item-3) CHISEL:2026-07-04-a1b2 Disable submit while invalid.
+```
+
+Now trigger inline completion at each marker, review the diff, run tests, then remove markers containing `CHISEL:2026-07-04-a1b2`.
 
 ## Workflow
 
@@ -56,6 +89,9 @@ Useful flags:
 - `--dry-run` prints changes without writing.
 - `--force` overwrites existing provider files.
 - `--with-codex-prompt` also installs deprecated Codex custom prompt support to `~/.codex/prompts/chisel.md`.
+- `--list-providers` prints supported provider ids.
+- `--print <provider>` prints the files that would be installed for one provider.
+- `--doctor` checks source files and the target repo for common install issues.
 
 Provider ids: `copilot`, `codex`, `claude`, `gemini`, `cursor`, `opencode`.
 
@@ -110,6 +146,15 @@ Weak markers are too broad:
 
 Each marker should guide one inline completion, usually 1-20 lines.
 
+## Marker Quality Bar
+
+A good marker should answer:
+
+1. Where should the change happen?
+2. What exact behavior should be added?
+3. What should not be changed?
+4. Can inline completion reasonably finish this in 1-20 lines?
+
 ## Safety Rules
 
 - Do not write the full implementation in Chisel mode.
@@ -120,6 +165,16 @@ Each marker should guide one inline completion, usually 1-20 lines.
 - If target location is unclear, skip the marker and say why.
 - Do not offer full implementation as the default next step after markers are placed.
 - User must review generated code and run tests.
+
+## When Not To Use Chisel
+
+Do not use Chisel for:
+
+- Tiny one-line fixes.
+- Tasks where you already know the exact implementation.
+- Security-sensitive code where marker-driven completion may miss edge cases.
+- Large refactors that need continuous architectural reasoning.
+- Generated files, migrations, lock files, or vendored code unless explicitly approved.
 
 ## Limits
 
