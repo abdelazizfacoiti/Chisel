@@ -141,10 +141,15 @@ npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only codex
 Use one of:
 
 ```text
-/chisel improve the checkout form validation
 $chisel improve the checkout form validation
 /skills
 use Chisel for this task: improve the checkout form validation
+```
+
+If your Codex build surfaces repo prompt files, you can also use:
+
+```text
+/chisel improve the checkout form validation
 ```
 
 Optional deprecated prompt command:
@@ -159,7 +164,7 @@ Restart Codex, then invoke:
 /prompts:chisel improve the checkout form validation
 ```
 
-Important: repo-local `/chisel` depends on Codex surfacing repo prompt files after restart. If your build does not show it yet, use `$chisel` or `/skills`. The user-local prompt installed by `--with-codex-prompt` is still available as a fallback via `/prompts:chisel`.
+Important: the reliable Codex invocation paths are `$chisel`, `/skills`, or plain language like `use Chisel for this task: ...`. The user-local prompt installed by `--with-codex-prompt` is available via `/prompts:chisel`.
 
 ## GitHub Copilot
 
@@ -176,7 +181,7 @@ Files:
 .github/prompts/chisel.prompt.md
 ```
 
-In VS Code Copilot Chat, the prompt file should be available through the prompt/command picker where prompt files are supported. Exact slash behavior depends on your VS Code and Copilot version.
+In VS Code Copilot Chat, the reliable path is plain language such as `Use Chisel for this task: improve the checkout form validation`. If your Copilot surface exposes prompt files, you can also select `chisel.prompt.md` from the prompt or command picker.
 
 ## Claude Code
 

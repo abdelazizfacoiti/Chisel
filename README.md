@@ -1,5 +1,7 @@
 # Chisel
 
+[![CI](https://github.com/abdelazizfacoiti/Chisel/actions/workflows/ci.yml/badge.svg)](https://github.com/abdelazizfacoiti/Chisel/actions/workflows/ci.yml)
+
 <p align="center">
   <img src="./assets/chisel-logo.png" alt="Chisel logo" width="360">
 </p>
@@ -139,16 +141,14 @@ Session notes are local by default. Consider adding `.chisel/` to `.gitignore` u
 
 | Tool | Installed files | How to invoke |
 |---|---|---|
-| Codex | `AGENTS.md`, `.codex/config.toml`, `.codex/prompts/chisel.md`, `.codex-plugin/plugin.json`, `.agents/skills/chisel/SKILL.md` | `/chisel`, `$chisel`, `/skills`, or "use Chisel" |
-| GitHub Copilot | `.github/copilot-instructions.md`, `.github/prompts/chisel.prompt.md` | Prompt file / command picker where supported |
+| Codex | `AGENTS.md`, `.codex/config.toml`, `.codex/prompts/chisel.md`, `.codex-plugin/plugin.json`, `.agents/skills/chisel/SKILL.md` | `$chisel`, `/skills`, or "use Chisel"; if repo prompts are surfaced, `/chisel` |
+| GitHub Copilot | `.github/copilot-instructions.md`, `.github/prompts/chisel.prompt.md` | "Use Chisel for this task: ..."; if prompt files are surfaced, select `chisel.prompt.md` |
 | Claude Code | `CLAUDE.md`, `.claude/commands/chisel.md` | `/chisel <task>` |
 | Gemini CLI | `GEMINI.md` | "use Chisel" |
 | Cursor | `.cursor/rules/chisel.mdc` | "use Chisel" |
 | opencode | `.opencode/AGENTS.md` | "use Chisel" |
 
-Codex note: Chisel now installs both the repo skill and a repo-local `.codex/prompts/chisel.md`, so `/chisel` should be available after restart in Codex builds that surface repo prompts. `$chisel` and `/skills` still work as fallbacks. `--with-codex-prompt` also installs the user-local deprecated prompt at `~/.codex/prompts/chisel.md`.
-
-Plugin note: Chisel includes `.codex-plugin/plugin.json` with `skills: "./skills/"` so the same skill can be packaged as a Codex plugin.
+Advanced provider notes, prompt-path details, and compatibility notes live in [docs/ADVANCED.md](./docs/ADVANCED.md).
 
 ## Local Commands
 
@@ -174,6 +174,8 @@ chisel cleanup 20260704153000-a1b2c3 --apply
 
 If you explicitly asked Chisel to stage old code, `chisel cleanup <session-id>` restores the staged block by default. Pass `--discard-staged` only when you want the staged old code deleted instead of restored.
 
+Advanced: opt-in stage mode for replacing existing code is documented in [docs/ADVANCED.md](./docs/ADVANCED.md).
+
 Check installed provider files:
 
 ```bash
@@ -181,16 +183,6 @@ chisel doctor --provider all
 ```
 
 `status` scans the repo literally. If your docs contain Chisel marker examples, those examples can appear as markers. `verify` is the per-session audit command. `npm run verify` is the repo's own test/check script. `cleanup` removes paired standalone marker lines, and if a marker was appended to code on the same line it is skipped with a warning for manual cleanup.
-
-## Stage Mode
-
-Stage mode is opt-in. Use it only when you explicitly want Chisel to mark existing code as replaceable by commenting it out safely.
-
-- Default Chisel behavior is still markers only. Working code stays untouched unless you ask to stage it.
-- For JS/TS/Go/Rust/Java/Python/YAML and similar line-comment surfaces, Chisel stages by turning the old lines into commented lines between `CHISEL-STAGE ... begin/end`.
-- For block-comment-only surfaces like HTML or CSS, Chisel stages only if the selected code does not already contain the same nested comment token.
-- Chisel refuses stage mode if it cannot get a clean syntax check on the staged file.
-- `chisel cleanup <session-id>` restores staged code by default. Use `--discard-staged` only when you want the old staged block deleted.
 
 ## Troubleshooting
 
@@ -206,11 +198,7 @@ Swap `codex` for the provider you are using.
 
 ## Marker Format
 
-## Marker Format v2
-
 Chisel now writes markers as a two-line block: a tracking line with the session and item id, followed immediately by a natural-language TODO line for inline-completion engines.
-
-Old single-line markers still work with `chisel status` and `chisel cleanup`. New sessions should use the two-line format going forward.
 
 TypeScript, JavaScript, Java, C#, Kotlin:
 
@@ -294,6 +282,11 @@ Chisel v0.2 is not a full CLI app. The included `chisel` command installs provid
 - Not a billing tracker.
 - Not a guarantee that inline completion will produce correct code.
 - Not a way to skip code review.
+
+## Contributing
+
+Contributor docs live in [CONTRIBUTING.md](./CONTRIBUTING.md). Version history lives in [CHANGELOG.md](./CHANGELOG.md).
+Advanced workflow and provider notes live in [docs/ADVANCED.md](./docs/ADVANCED.md).
 
 ## Roadmap
 
