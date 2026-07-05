@@ -14,11 +14,74 @@ The chat agent does the high-leverage work: understand the task, inspect the rep
 
 Chisel v0.2 does not run its own deterministic marker-insertion engine. It installs provider-specific instructions that tell your coding agent how to plan, place markers, and stop before implementation. It also includes local status, cleanup, and doctor commands so sessions are easier to trust.
 
-## Status
+## 60-Second Example
 
-Chisel is currently v0.2: an instruction and command pack with a lightweight local trust layer.
+User:
 
-It does not run its own code-mod marker insertion engine yet. It installs instructions, commands, skills, and rules for supported AI coding tools, then provides deterministic local scan, status, cleanup, and install health checks.
+```text
+Use Chisel for this task: add email validation to signup.
+```
+
+Agent:
+
+```text
+Plan ready:
+1. Validate email format before submit.
+2. Show inline error message.
+3. Disable submit while invalid.
+
+Approve marker pass?
+```
+
+After approval, the agent should place markers near the relevant code:
+
+```ts
+// CHISEL:20260704153000-a1b2c3 item-1
+// TODO: Validate email format before submit.
+// CHISEL:20260704153000-a1b2c3 item-2
+// TODO: Show inline error message.
+// CHISEL:20260704153000-a1b2c3 item-3
+// TODO: Disable submit while invalid.
+```
+
+Now trigger inline completion at each marker, or implement by hand, review the diff, run tests, then remove markers containing `CHISEL:20260704153000-a1b2c3`.
+
+Example marker inside `src/components/SignupForm.tsx`:
+
+```tsx
+function handleSubmit(event: FormEvent) {
+  event.preventDefault();
+
+  // CHISEL:20260704153000-a1b2c3 item-1
+  // TODO: Validate email format before submit and return early with an inline error.
+
+  submitForm();
+}
+```
+
+## Install
+
+From the repo where you want Chisel active:
+
+```bash
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only codex
+```
+
+For all install options, providers, flags, uninstall steps, and manual copy commands, see [install.md](./install.md).
+
+Session notes are local by default. Consider adding `.chisel/` to `.gitignore` unless your team wants to review Chisel receipts.
+
+## Workflow
+
+1. Say: "Use Chisel for this task: add validation to the checkout form."
+2. Agent writes a concise plan.
+3. You approve the plan.
+4. Agent inspects files and inserts paired `CHISEL:<session-id> item-N` and `TODO:` marker lines.
+5. Agent runs `chisel verify <session-id>` and shows the result before calling the pass clean.
+6. Agent stops before implementation.
+7. You trigger inline completion at each marker or implement by hand.
+8. You review the diff and run tests.
+9. You inspect or clean the session with `chisel status`, `chisel verify`, and `chisel cleanup`.
 
 ## Why Chisel?
 
@@ -68,75 +131,6 @@ Chisel v0.2 works through provider instruction files plus local trust-layer comm
 - Provider install pack: installer can drop the right instruction/command files for Codex, GitHub Copilot, Claude Code, Gemini, Cursor, and opencode.
 - Codex plugin metadata: `.codex-plugin/plugin.json` is included for packaging Chisel as an installable Codex plugin later.
 
-## 60-Second Example
-
-User:
-
-```text
-Use Chisel for this task: add email validation to signup.
-```
-
-Agent:
-
-```text
-Plan ready:
-1. Validate email format before submit.
-2. Show inline error message.
-3. Disable submit while invalid.
-
-Approve marker pass?
-```
-
-After approval, the agent should place markers near the relevant code:
-
-```ts
-// CHISEL:20260704153000-a1b2c3 item-1
-// TODO: Validate email format before submit.
-// CHISEL:20260704153000-a1b2c3 item-2
-// TODO: Show inline error message.
-// CHISEL:20260704153000-a1b2c3 item-3
-// TODO: Disable submit while invalid.
-```
-
-Now trigger inline completion at each marker, or implement by hand, review the diff, run tests, then remove markers containing `CHISEL:20260704153000-a1b2c3`.
-
-Example marker inside `src/components/SignupForm.tsx`:
-
-```tsx
-function handleSubmit(event: FormEvent) {
-  event.preventDefault();
-
-  // CHISEL:20260704153000-a1b2c3 item-1
-  // TODO: Validate email format before submit and return early with an inline error.
-
-  submitForm();
-}
-```
-
-## Workflow
-
-1. Say: "Use Chisel for this task: add validation to the checkout form."
-2. Agent writes a concise plan.
-3. You approve the plan.
-4. Agent inspects files and inserts paired `CHISEL:<session-id> item-N` and `TODO:` marker lines.
-5. Agent runs `chisel verify <session-id>` and shows the result before calling the pass clean.
-6. Agent stops before implementation.
-7. You trigger inline completion at each marker or implement by hand.
-8. You review the diff and run tests.
-9. You inspect or clean the session with `chisel status`, `chisel verify`, and `chisel cleanup`.
-
-## Install
-
-From the repo where you want Chisel active:
-
-```bash
-npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only codex
-```
-
-For all install options, providers, flags, uninstall steps, and manual copy commands, see [install.md](./install.md).
-
-Session notes are local by default. Consider adding `.chisel/` to `.gitignore` unless your team wants to review Chisel receipts.
-
 ## Provider Support
 
 | Tool | Installed files | How to invoke |
@@ -183,18 +177,6 @@ chisel doctor --provider all
 ```
 
 `status` scans the repo literally. If your docs contain Chisel marker examples, those examples can appear as markers. `verify` is the per-session audit command. `npm run verify` is the repo's own test/check script. `cleanup` removes paired standalone marker lines, and if a marker was appended to code on the same line it is skipped with a warning for manual cleanup.
-
-## Troubleshooting
-
-If an agent starts implementing code right after you approve the marker pass, that agent is ignoring the core Chisel rule. In Chisel, `yes` means "insert comments only", not "implement the feature".
-
-Refresh the installed provider files in the target repo after upgrading Chisel:
-
-```bash
-npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only codex --force
-```
-
-Swap `codex` for the provider you are using.
 
 ## Marker Format
 
@@ -258,6 +240,24 @@ A good marker should answer:
 - If target location is unclear, skip the marker and say why.
 - Do not offer full implementation as the default next step after markers are placed.
 - User must review generated code and run tests.
+
+## Status
+
+Chisel is currently v0.2: an instruction and command pack with a lightweight local trust layer.
+
+It does not run its own code-mod marker insertion engine yet. It installs instructions, commands, skills, and rules for supported AI coding tools, then provides deterministic local scan, status, cleanup, and install health checks.
+
+## Troubleshooting
+
+If an agent starts implementing code right after you approve the marker pass, that agent is ignoring the core Chisel rule. In Chisel, `yes` means "insert comments only", not "implement the feature".
+
+Refresh the installed provider files in the target repo after upgrading Chisel:
+
+```bash
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only codex --force
+```
+
+Swap `codex` for the provider you are using.
 
 ## When Not To Use Chisel
 
