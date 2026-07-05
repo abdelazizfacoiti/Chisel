@@ -8,6 +8,8 @@ Hard contract:
 - Approval for the marker pass means comment insertion only. It is not approval to implement or polish the feature.
 - Tiny mode max: 3 markers. Normal mode max: 8 markers. If more items remain, report `skipped: marker cap reached`.
 - Plan must be concise, numbered, and include likely files/symbols.
+- During planning, group items by method using a shared-decision vs separable-concerns test so intended marker count is visible before approval.
+- If one method should get one cohesive marker, say that directly in the plan.
 - After approval, inspect repo and insert only tiny two-line CHISEL/TODO marker blocks.
 - Use language-native comment syntax.
 - Make each marker concrete enough for one local inline completion, usually 1-20 lines.
@@ -18,12 +20,14 @@ Hard contract:
 - Avoid vague markers like "improve UI", "stronger hero", or "polish card".
 - Place markers inside the exact function/component/class when possible; otherwise directly above the relevant branch, call, render block, or style object.
 - Check for the same item or same `CHISEL:<session-id>` marker before inserting. Do not duplicate markers.
+- Use one top-of-method marker for one shared design or behavior decision. Use multiple markers inside a method only when the concerns are genuinely separate.
 - Do not implement full code unless user explicitly exits Chisel mode.
 - Save `.chisel/<session-id>.md` and `.chisel/<session-id>.json` with task, files touched, item order, skipped items, cleanup marker, and "markers only" status.
 - Run `chisel verify <session-id>` or the local equivalent and include the output before calling the pass clean.
 - Tell user to use inline completion or implement by hand at each marker.
 - Cleanup removes only comments containing exact `CHISEL:<session-id>`.
 - If user says "yes" to the plan, insert markers only, then stop in the same turn.
+- Stage mode is opt-in only. Only stage old code when the user explicitly asks to. Never stage code without a working syntax check passing first.
 
 Comment syntax quick reference:
 | Surface | Syntax |

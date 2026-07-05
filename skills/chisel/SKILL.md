@@ -23,6 +23,8 @@ Phase 1: Plan only.
 - Do not edit files.
 - Show numbered plan items.
 - Include likely files/symbols.
+- Group plan items by method using a shared-decision vs separable-concerns test so the user can see intended marker count before approval.
+- If a method should get one cohesive marker, say that directly in the plan, for example: `item-2: drawBoard() - one marker, cohesive restyle`.
 - Ask: "Approve marker pass?"
 
 Phase 2: Marker pass only.
@@ -66,6 +68,11 @@ Review mode:
 Cleanup mode:
 - Remove only markers containing the exact session id.
 - Do not modify implementation code.
+
+Stage mode:
+- Opt-in only.
+- Use only when the user explicitly asks to stage old code or comment out what should be replaced.
+- Default marker behavior stays primary: TODO markers only, working code left untouched.
 
 ## Voice
 
@@ -129,6 +136,27 @@ If the user says "yes" after the plan and before markers are placed, insert mark
 - Avoid vague markers like "improve UI", "make better", "stronger hero treatment", or "polish card".
 - Before inserting a marker, check whether the same item or same `CHISEL:<session-id>` marker already exists in the target file. Do not duplicate markers.
 
+## Stage Mode (opt-in)
+
+- Only stage code when the user explicitly asks to.
+- Never stage code in the default marker workflow.
+- Keep the normal tracking line and TODO line above any staged block.
+- For line-comment languages, staged code lives between `CHISEL-STAGE:<session-id> item-N begin` and `end`, with each original line prefixed by the language's line-comment token.
+- For block-comment-only surfaces like HTML or CSS, wrap the staged body in exactly one native block comment and refuse staging if the selected code already contains the same nested comment token.
+- Never wrap already-commented code in another block comment.
+- Never stage code that would leave the file non-functional without a working syntax check passing first.
+- If syntax check is unavailable or fails, skip staging and say why.
+
+Example:
+
+```ts
+// CHISEL:20260705120000-a1b2c3 item-2
+// TODO: Replace legacy submit path with validation-aware flow.
+// CHISEL-STAGE:20260705120000-a1b2c3 item-2 begin
+//   return true;
+// CHISEL-STAGE:20260705120000-a1b2c3 item-2 end
+```
+
 ## Placement Priority
 
 Place markers in this order of preference:
@@ -139,6 +167,17 @@ Place markers in this order of preference:
 4. If no reliable location exists, skip the item.
 
 Do not place markers at the top of a file unless the task is file-level and the reason is clear.
+
+## Marker Granularity
+
+Before placing markers in a method, decide: do the requested changes share one design decision, or are they separable concerns?
+
+- Shared decision:
+  One visual or behavioral intent expressed across the method, for example "make this rendering function feel more realistic" or "restyle this panel". Place one marker at the top of the method. Write a rich instruction naming every concrete move expected, for example "replace flat fill with linear gradient dark-to-darker, drop grid opacity to about 5%, keep border radius". Let inline completion regenerate the method body as a whole so the result stays internally consistent. Do not split a single design decision into per-line markers just because the method is long.
+- Separable concerns:
+  Unrelated edits that happen to share a method, for example validation logic and error message wording and an unrelated logging call. Place one marker per concern, each directly above its own block, following Placement Priority. Do not combine unrelated concerns under one top-of-method marker.
+- Default:
+  Default to shared-decision framing unless the plan step explicitly names two or more unrelated changes to the same method. When in doubt, prefer fewer, richer markers over many small ones. This protects both the marker cap and completion coherence.
 
 Examples:
 
@@ -227,6 +266,8 @@ After inserting markers, report:
 - verify command output from `chisel verify <session-id>` or the local equivalent
 - skipped items
 - next action: "Use inline completion or implement by hand at each marker, review diff, run tests."
+
+If stage mode was used, say which blocks were staged and remind the user that `chisel cleanup <session-id>` restores staged code by default unless `--discard-staged` is passed.
 
 Do not offer to fully implement as the default next step. If user asks what next, recommend a second marker pass or cleanup.
 Never claim you are "applying enhancements", "making improvements", or "running a realism pass" while still in Chisel mode.
