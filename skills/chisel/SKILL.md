@@ -31,6 +31,7 @@ Phase 2: Marker pass only.
 - Marker comments must include enough local context for inline completion or hand coding.
 - Do not implement code.
 - Save session note.
+- Run `chisel verify <session-id>` or the local equivalent and include its output in the report.
 - Report markers and stop.
 
 No approval means no file edits.
@@ -91,8 +92,9 @@ Bad:
 5. Generate a unique session id: compact timestamp plus short random suffix.
 6. Insert minimal comments using correct language syntax.
 7. Save a local note at `.chisel/<session-id>.md` and a machine-readable receipt at `.chisel/<session-id>.json`.
-8. Stop. Do not implement full code.
-9. Tell user to use inline completion or implement by hand at each two-line CHISEL/TODO marker block.
+8. Run `chisel verify <session-id>` or the local equivalent before declaring the pass complete.
+9. Stop. Do not implement full code.
+10. Tell user to use inline completion or implement by hand at each two-line CHISEL/TODO marker block.
 
 Interpret "yes" after the plan as approval to place markers only. Never interpret it as approval to write code.
 
@@ -222,11 +224,13 @@ After inserting markers, report:
 - session id
 - files touched
 - marker list with line numbers
+- verify command output from `chisel verify <session-id>` or the local equivalent
 - skipped items
 - next action: "Use inline completion or implement by hand at each marker, review diff, run tests."
 
 Do not offer to fully implement as the default next step. If user asks what next, recommend a second marker pass or cleanup.
 Never claim you are "applying enhancements", "making improvements", or "running a realism pass" while still in Chisel mode.
+If verify reports FAIL, say that explicitly and do not claim the marker pass was clean.
 
 ## Limits
 

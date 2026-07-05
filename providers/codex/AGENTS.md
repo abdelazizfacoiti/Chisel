@@ -12,6 +12,7 @@ Workflow:
 - After approval, inspect target files.
 - Insert only tiny two-line CHISEL/TODO marker blocks.
 - Save `.chisel/<session-id>.md` and `.chisel/<session-id>.json` with task, files touched, item order with file/line, skipped items, cleanup marker, and "markers only" status.
+- Run `chisel verify <session-id>` or the local equivalent and include the output before declaring the marker pass complete.
 - Stop before full implementation.
 - Tell user to use inline completion or implement by hand at each marker.
 - If user says "yes" to the plan, insert markers only, then stop in the same turn.
@@ -36,6 +37,7 @@ Do not:
 - Guess aggressively when target location is unclear.
 - Offer full implementation as the default next step after markers are placed.
 - Treat "yes" to the plan as approval to write code.
+- Claim the marker pass was clean if `chisel verify <session-id>` reported FAIL.
 
 Cleanup: remove only comments containing exact `CHISEL:<session-id>`.
 

@@ -12,8 +12,9 @@ Process:
 7. After approval, inspect repo.
 8. Insert tiny two-line CHISEL/TODO marker blocks at target locations using language-native comment syntax.
 9. Save minimal `.chisel/<session-id>.md` and `.chisel/<session-id>.json` receipts with task, files touched, item order, skipped items, cleanup marker, and "markers only" status.
-10. Stop before writing full code in the same turn.
-11. Tell user to use inline completion or implement by hand at each marker.
+10. Run `chisel verify <session-id>` or the local equivalent and include the output before declaring the marker pass complete.
+11. Stop before writing full code in the same turn.
+12. Tell user to use inline completion or implement by hand at each marker.
 
 Marker quality:
 - One marker guides one local completion, usually 1-20 lines.
@@ -34,6 +35,7 @@ Safety:
 - If unsure, skip and record why.
 - Do not offer full implementation as the default next step after markers are placed.
 - Do not treat "yes" to the plan as approval to implement code.
+- If `chisel verify <session-id>` reports FAIL, say so explicitly and do not claim the pass was clean.
 
 Cleanup removes only comments containing exact `CHISEL:<session-id>`.
 

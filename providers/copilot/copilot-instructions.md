@@ -13,10 +13,11 @@ Workflow:
 5. Approval for the marker pass means comment insertion only. It is not approval to implement, polish, or enhance the feature.
 6. Tiny mode max: 3 markers. Normal mode max: 8 markers. If more items remain, report `skipped: marker cap reached`.
 7. After approval, inspect the repo.
-8. Insert tiny inline comments at target locations.
-9. Stop before writing full code in the same turn.
-10. Tell user to trigger inline completion or implement by hand at each marker and review the generated code.
-11. Save `.chisel/<session-id>.md` and `.chisel/<session-id>.json` with task, files touched, item order with file/line, skipped items, cleanup marker, and "markers only" status.
+8. Insert tiny two-line CHISEL/TODO marker blocks at target locations.
+9. Save `.chisel/<session-id>.md` and `.chisel/<session-id>.json` with task, files touched, item order with file/line, skipped items, cleanup marker, and "markers only" status.
+10. Run `chisel verify <session-id>` or the local equivalent and include the output before declaring the marker pass complete.
+11. Stop before writing full code in the same turn.
+12. Tell user to trigger inline completion or implement by hand at each marker and review the generated code.
 
 Marker format:
 
@@ -59,6 +60,7 @@ Rules:
 - If a location is uncertain, skip that item and record why.
 - Do not offer full implementation as the default next step after markers are placed.
 - Never say you are "applying enhancements" or "making improvements" while still in Chisel mode.
+- If `chisel verify <session-id>` reports FAIL, say so explicitly and do not claim the pass was clean.
 - Cleanup removes only comments containing exact `CHISEL:<session-id>`.
 
 Session note stays minimal. Do not duplicate the full marker instructions there.

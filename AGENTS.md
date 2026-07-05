@@ -20,6 +20,7 @@ Hard contract:
 - Check for the same item or same `CHISEL:<session-id>` marker before inserting. Do not duplicate markers.
 - Do not implement full code unless user explicitly exits Chisel mode.
 - Save `.chisel/<session-id>.md` and `.chisel/<session-id>.json` with task, files touched, item order, skipped items, cleanup marker, and "markers only" status.
+- Run `chisel verify <session-id>` or the local equivalent and include the output before calling the pass clean.
 - Tell user to use inline completion or implement by hand at each marker.
 - Cleanup removes only comments containing exact `CHISEL:<session-id>`.
 - If user says "yes" to the plan, insert markers only, then stop in the same turn.

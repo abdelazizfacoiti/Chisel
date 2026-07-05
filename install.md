@@ -50,6 +50,7 @@ Use a tag-pinned GitHub install like `github:abdelazizfacoiti/Chisel#v0.2.0` for
 - `--doctor` checks source files and the target repo for common install issues.
 - `--provider <provider|all>` narrows `doctor` checks.
 - `status [session-id]` scans `.chisel/` receipts and current repo markers.
+- `verify <session-id>` audits whether a session stayed markers-only by checking markers, git diff, and best-effort syntax for touched files.
 - `cleanup <session-id>` previews removal of exact session marker lines.
 - `cleanup <session-id> --apply` removes both lines of a standalone marker block containing `CHISEL:<session-id>`.
 
@@ -92,6 +93,12 @@ npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- status
 npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- status 20260704153000-a1b2c3
 ```
 
+Audit a marker pass:
+
+```bash
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- verify 20260704153000-a1b2c3
+```
+
 Preview and apply cleanup:
 
 ```bash
@@ -99,7 +106,7 @@ npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- cleanup 20260704153000-a1b2c3
 npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- cleanup 20260704153000-a1b2c3 --apply
 ```
 
-Cleanup is literal: dry-run previews matching lines, and `--apply` removes both lines of a standalone marker block containing the exact `CHISEL:<session-id>` string. Inline code+marker lines are warned and skipped for manual cleanup.
+Cleanup is literal: dry-run previews matching lines, and `--apply` removes both lines of a standalone marker block containing the exact `CHISEL:<session-id>` string. Inline code+marker lines are warned and skipped for manual cleanup. `npx ... -- verify <session-id>` is the session audit command; `npm run verify` is only for Chisel repo development.
 
 ## What Gets Installed
 

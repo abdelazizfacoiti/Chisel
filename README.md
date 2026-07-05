@@ -59,6 +59,7 @@ Chisel v0.2 works through provider instruction files plus local trust-layer comm
 - Hand-coding mode: you can ignore inline completion and implement each marker yourself, using Chisel as a guided map through the codebase.
 - Session receipts: agent writes `.chisel/<session-id>.md` and `.chisel/<session-id>.json` with task, files touched, item order, skipped items, and cleanup marker.
 - Deterministic status: `chisel status [session-id]` scans receipts and current repo markers.
+- Deterministic per-session audit: `chisel verify <session-id>` checks that the pass stayed markers-only, inspects git diff in touched files, and runs best-effort syntax checks.
 - Safe cleanup command: `chisel cleanup <session-id>` previews exact marker removal, and `--apply` removes both lines of a standalone marker block containing `CHISEL:<session-id>`.
 - Provider doctor: `chisel doctor --provider all` checks installed provider files and reports missing or stale files.
 - Provider install pack: installer can drop the right instruction/command files for Codex, GitHub Copilot, Claude Code, Gemini, Cursor, and opencode.
@@ -115,10 +116,11 @@ function handleSubmit(event: FormEvent) {
 2. Agent writes a concise plan.
 3. You approve the plan.
 4. Agent inspects files and inserts paired `CHISEL:<session-id> item-N` and `TODO:` marker lines.
-5. Agent stops before implementation.
-6. You trigger inline completion at each marker or implement by hand.
-7. You review the diff and run tests.
-8. You inspect or clean the session with `chisel status` and `chisel cleanup`.
+5. Agent runs `chisel verify <session-id>` and shows the result before calling the pass clean.
+6. Agent stops before implementation.
+7. You trigger inline completion at each marker or implement by hand.
+8. You review the diff and run tests.
+9. You inspect or clean the session with `chisel status`, `chisel verify`, and `chisel cleanup`.
 
 ## Install
 
@@ -156,6 +158,12 @@ chisel status
 chisel status 20260704153000-a1b2c3
 ```
 
+Audit a marker pass deterministically:
+
+```bash
+chisel verify 20260704153000-a1b2c3
+```
+
 Preview cleanup, then apply it:
 
 ```bash
@@ -169,7 +177,7 @@ Check installed provider files:
 chisel doctor --provider all
 ```
 
-`status` scans the repo literally. If your docs contain Chisel marker examples, those examples can appear as markers. `cleanup` removes paired standalone marker lines, and if a marker was appended to code on the same line it is skipped with a warning for manual cleanup.
+`status` scans the repo literally. If your docs contain Chisel marker examples, those examples can appear as markers. `verify` is the per-session audit command. `npm run verify` is the repo's own test/check script. `cleanup` removes paired standalone marker lines, and if a marker was appended to code on the same line it is skipped with a warning for manual cleanup.
 
 ## Troubleshooting
 

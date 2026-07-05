@@ -1,6 +1,7 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const childProcess = require('node:child_process');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
@@ -15,6 +16,7 @@ const {
   parseMarkerLine,
   scanMarkers,
   status,
+  verifySession,
 } = require('../lib/chisel');
 
 function tempRepo() {
@@ -26,6 +28,25 @@ function writeFile(root, relPath, content) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, content, 'utf8');
   return filePath;
+}
+
+function run(command, args, cwd) {
+  return childProcess.execFileSync(command, args, {
+    cwd,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+}
+
+function initGitRepo(root) {
+  run('git', ['init'], root);
+  run('git', ['config', 'user.name', 'Chisel Test'], root);
+  run('git', ['config', 'user.email', 'chisel@example.com'], root);
+}
+
+function commitAll(root, message) {
+  run('git', ['add', '.'], root);
+  run('git', ['commit', '-m', message], root);
 }
 
 function outputBuffer() {
@@ -223,4 +244,136 @@ test('installer reports stale files and provider doctor detects them', () => {
   assert.match(doctorOut.read(), /chisel installed version: 0\.2\.0/);
   assert.match(doctorOut.read(), /target: codex AGENTS\.md stale/);
   assert.equal(result.failed > 0, true);
+});
+
+test('verify passes for a clean markers-only session', () => {
+  const repo = tempRepo();
+  initGitRepo(repo);
+  writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  return true;',
+    '}',
+  ].join('\n'));
+  writeFile(repo, '.chisel/20260704153000-a1b2c3.json', JSON.stringify({
+    sessionId: '20260704153000-a1b2c3',
+    task: 'add validation',
+  }, null, 2));
+  commitAll(repo, 'baseline');
+
+  writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  // CHISEL:20260704153000-a1b2c3 item-1',
+    '  // TODO: Add email validation before submit.',
+    '  return true;',
+    '}',
+  ].join('\n'));
+
+  const out = outputBuffer();
+  const result = verifySession({ target: repo, sessionId: '20260704153000-a1b2c3' }, out.stream);
+  const receipt = JSON.parse(fs.readFileSync(path.join(repo, '.chisel/20260704153000-a1b2c3.json'), 'utf8'));
+
+  assert.equal(result.pass, true);
+  assert.equal(result.nonMarkerChanges.length, 0);
+  assert.match(out.read(), /result: PASS/);
+  assert.equal(receipt.verification.passed, true);
+});
+
+test('verify fails when real code changes slip in beside markers', () => {
+  const repo = tempRepo();
+  initGitRepo(repo);
+  writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  return true;',
+    '}',
+  ].join('\n'));
+  commitAll(repo, 'baseline');
+
+  writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  // CHISEL:20260704153000-a1b2c3 item-1',
+    '  // TODO: Add email validation before submit.',
+    '  const valid = /@/.test(email);',
+    '  return valid;',
+    '}',
+  ].join('\n'));
+
+  const out = outputBuffer();
+  const result = verifySession({ target: repo, sessionId: '20260704153000-a1b2c3' }, out.stream);
+
+  assert.equal(result.pass, false);
+  assert.equal(result.nonMarkerChanges.length, 1);
+  assert.match(out.read(), /result: FAIL/);
+  assert.match(out.read(), /real code was added or removed outside marker comments/);
+});
+
+test('verify fails on duplicate item ids or mixed session id variants', () => {
+  const repo = tempRepo();
+  initGitRepo(repo);
+  writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  return true;',
+    '}',
+  ].join('\n'));
+  commitAll(repo, 'baseline');
+
+  writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  // CHISEL:20260704153000-a1b2c3 item-1',
+    '  // TODO: Add email validation before submit.',
+    '  // CHISEL:20260704153000-z9y8x7 item-1',
+    '  // TODO: Add duplicate marker with mixed session id.',
+    '  return true;',
+    '}',
+  ].join('\n'));
+
+  const out = outputBuffer();
+  const result = verifySession({ target: repo, sessionId: '20260704153000-a1b2c3' }, out.stream);
+
+  assert.equal(result.pass, false);
+  assert.deepEqual(result.duplicateItems, ['item-1']);
+  assert.deepEqual(result.sessionVariants, ['20260704153000-a1b2c3', '20260704153000-z9y8x7']);
+  assert.match(out.read(), /Mixed session id variants were found/);
+  assert.match(out.read(), /Duplicate item ids were found/);
+});
+
+test('verify fails when a touched file does not parse', () => {
+  const repo = tempRepo();
+  initGitRepo(repo);
+  writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  return true;',
+    '}',
+  ].join('\n'));
+  commitAll(repo, 'baseline');
+
+  writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  // CHISEL:20260704153000-a1b2c3 item-1',
+    '  // TODO: Add email validation before submit.',
+    '  /*',
+    '}',
+  ].join('\n'));
+
+  const out = outputBuffer();
+  const result = verifySession({ target: repo, sessionId: '20260704153000-a1b2c3' }, out.stream);
+
+  assert.equal(result.pass, false);
+  assert.equal(result.syntaxChecks.some((check) => check.status === 'fail'), true);
+  assert.match(out.read(), /result: FAIL/);
+  assert.match(out.read(), /Syntax checks:/);
+});
+
+test('doctor hints when sessions have never been verified', () => {
+  const repo = tempRepo();
+  writeFile(repo, '.git/HEAD', 'ref: refs/heads/main\n');
+  writeFile(repo, '.chisel/20260704153000-a1b2c3.json', JSON.stringify({
+    sessionId: '20260704153000-a1b2c3',
+    task: 'add validation',
+  }, null, 2));
+  const out = outputBuffer();
+
+  const result = doctor({ target: repo, provider: 'codex' }, out.stream);
+
+  assert.equal(result.unverifiedSessions.includes('20260704153000-a1b2c3'), true);
+  assert.match(out.read(), /run `chisel verify 20260704153000-a1b2c3` to audit that marker pass/);
 });
