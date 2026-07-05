@@ -155,6 +155,60 @@ test('status combines JSON receipts with marker scan fallback', () => {
   assert.match(out.read(), /src\/form\.ts:1\/2 item-1 Add validation guard\./);
 });
 
+test('status with no session id auto-selects the only session', () => {
+  const repo = tempRepo();
+  writeFile(repo, '.chisel/20260704153000-a1b2c3.json', JSON.stringify({
+    sessionId: '20260704153000-a1b2c3',
+    task: 'add validation',
+    filesTouched: ['src/form.ts'],
+  }, null, 2));
+  writeFile(repo, 'src/form.ts', [
+    '// CHISEL:20260704153000-a1b2c3 item-1',
+    '// TODO: Add validation guard.',
+  ].join('\n'));
+  const out = outputBuffer();
+
+  const result = status({ target: repo }, out.stream);
+
+  assert.deepEqual(result.sessions, ['20260704153000-a1b2c3']);
+  assert.match(out.read(), /no session id given, using latest: 20260704153000-a1b2c3/);
+  assert.match(out.read(), /Chisel status/);
+  assert.match(out.read(), /session: 20260704153000-a1b2c3/);
+});
+
+test('status with no session id lists multiple sessions and does not guess', () => {
+  const repo = tempRepo();
+  writeFile(repo, '.chisel/20260704153000-a1b2c3.json', JSON.stringify({
+    sessionId: '20260704153000-a1b2c3',
+    task: 'add validation',
+    filesTouched: ['src/form.ts'],
+  }, null, 2));
+  writeFile(repo, '.chisel/20260705140000-z9y8x7.json', JSON.stringify({
+    sessionId: '20260705140000-z9y8x7',
+    task: 'tweak checkout',
+    filesTouched: ['src/cart.ts', 'src/cart-view.tsx'],
+  }, null, 2));
+  const out = outputBuffer();
+
+  const result = status({ target: repo }, out.stream);
+
+  assert.deepEqual(result.sessions, ['20260705140000-z9y8x7', '20260704153000-a1b2c3']);
+  assert.match(out.read(), /Multiple Chisel sessions found in this repo\. Pass one explicitly:/);
+  assert.match(out.read(), /20260705140000-z9y8x7  tweak checkout  2 files/);
+  assert.match(out.read(), /20260704153000-a1b2c3  add validation  1 file/);
+  assert.doesNotMatch(out.read(), /Chisel status/);
+});
+
+test('status with no session id and no sessions prints a clear message', () => {
+  const repo = tempRepo();
+  const out = outputBuffer();
+
+  const result = status({ target: repo }, out.stream);
+
+  assert.deepEqual(result.sessions, []);
+  assert.match(out.read(), /No Chisel sessions found in this repo\./);
+});
+
 test('cleanup dry-run reports markers without editing files', () => {
   const repo = tempRepo();
   const file = writeFile(repo, 'src/form.ts', [
@@ -172,6 +226,57 @@ test('cleanup dry-run reports markers without editing files', () => {
   assert.match(out.read(), /remove line 1: \/\/ CHISEL:20260704153000-a1b2c3 item-1/);
   assert.match(out.read(), /remove line 2: \/\/ TODO: Add validation guard\./);
   assert.match(fs.readFileSync(file, 'utf8'), /CHISEL:20260704153000-a1b2c3/);
+});
+
+test('cleanup with no session id auto-selects the only session', () => {
+  const repo = tempRepo();
+  writeFile(repo, '.chisel/20260704153000-a1b2c3.json', JSON.stringify({
+    sessionId: '20260704153000-a1b2c3',
+    task: 'add validation',
+  }, null, 2));
+  const file = writeFile(repo, 'src/form.ts', [
+    '// CHISEL:20260704153000-a1b2c3 item-1',
+    '// TODO: Add validation guard.',
+  ].join('\n'));
+  const out = outputBuffer();
+
+  const result = cleanup({ target: repo, apply: false }, out.stream);
+
+  assert.equal(result.changes.length, 1);
+  assert.match(out.read(), /no session id given, using latest: 20260704153000-a1b2c3/);
+  assert.match(out.read(), /session: 20260704153000-a1b2c3/);
+  assert.match(fs.readFileSync(file, 'utf8'), /CHISEL:20260704153000-a1b2c3/);
+});
+
+test('cleanup with no session id lists multiple sessions and does not guess', () => {
+  const repo = tempRepo();
+  writeFile(repo, '.chisel/20260704153000-a1b2c3.json', JSON.stringify({
+    sessionId: '20260704153000-a1b2c3',
+    task: 'add validation',
+    filesTouched: ['src/form.ts'],
+  }, null, 2));
+  writeFile(repo, '.chisel/20260705140000-z9y8x7.json', JSON.stringify({
+    sessionId: '20260705140000-z9y8x7',
+    task: 'tweak checkout',
+    filesTouched: ['src/cart.ts', 'src/cart-view.tsx'],
+  }, null, 2));
+  const out = outputBuffer();
+
+  const result = cleanup({ target: repo, apply: false }, out.stream);
+
+  assert.equal(result.changes.length, 0);
+  assert.match(out.read(), /Multiple Chisel sessions found in this repo\. Pass one explicitly:/);
+  assert.match(out.read(), /Run `chisel cleanup <session-id>`\./);
+});
+
+test('cleanup with no session id and no sessions prints a clear message', () => {
+  const repo = tempRepo();
+  const out = outputBuffer();
+
+  const result = cleanup({ target: repo, apply: false }, out.stream);
+
+  assert.equal(result.changes.length, 0);
+  assert.match(out.read(), /No Chisel sessions found in this repo\./);
 });
 
 test('cleanup removes both lines of a two-line marker and skips inline code markers', () => {
@@ -287,6 +392,68 @@ test('verify passes for a clean markers-only session', () => {
   assert.equal(result.nonMarkerChanges.length, 0);
   assert.match(out.read(), /result: PASS/);
   assert.equal(receipt.verification.passed, true);
+});
+
+test('verify with no session id auto-selects the only session', () => {
+  const repo = tempRepo();
+  initGitRepo(repo);
+  writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  return true;',
+    '}',
+  ].join('\n'));
+  writeFile(repo, '.chisel/20260704153000-a1b2c3.json', JSON.stringify({
+    sessionId: '20260704153000-a1b2c3',
+    task: 'add validation',
+  }, null, 2));
+  commitAll(repo, 'baseline');
+
+  writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  // CHISEL:20260704153000-a1b2c3 item-1',
+    '  // TODO: Add email validation before submit.',
+    '  return true;',
+    '}',
+  ].join('\n'));
+  const out = outputBuffer();
+
+  const result = verifySession({ target: repo }, out.stream);
+
+  assert.equal(result.pass, true);
+  assert.match(out.read(), /no session id given, using latest: 20260704153000-a1b2c3/);
+  assert.match(out.read(), /session: 20260704153000-a1b2c3/);
+  assert.match(out.read(), /result: PASS/);
+});
+
+test('verify with no session id lists multiple sessions and does not guess', () => {
+  const repo = tempRepo();
+  writeFile(repo, '.chisel/20260704153000-a1b2c3.json', JSON.stringify({
+    sessionId: '20260704153000-a1b2c3',
+    task: 'add validation',
+    filesTouched: ['src/form.ts'],
+  }, null, 2));
+  writeFile(repo, '.chisel/20260705140000-z9y8x7.json', JSON.stringify({
+    sessionId: '20260705140000-z9y8x7',
+    task: 'tweak checkout',
+    filesTouched: ['src/cart.ts', 'src/cart-view.tsx'],
+  }, null, 2));
+  const out = outputBuffer();
+
+  const result = verifySession({ target: repo }, out.stream);
+
+  assert.equal(result.pass, false);
+  assert.match(out.read(), /Multiple Chisel sessions found in this repo\. Pass one explicitly:/);
+  assert.match(out.read(), /Run `chisel verify <session-id>`\./);
+});
+
+test('verify with no session id and no sessions prints a clear message', () => {
+  const repo = tempRepo();
+  const out = outputBuffer();
+
+  const result = verifySession({ target: repo }, out.stream);
+
+  assert.equal(result.pass, false);
+  assert.match(out.read(), /No Chisel sessions found in this repo\./);
 });
 
 test('stageBlock stages a JS block and verify accepts staged-only changes', () => {

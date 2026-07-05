@@ -47,6 +47,7 @@ If the user approves the marker pass and also asks for extra behavior in the sam
 ## Modes
 
 Default mode: normal.
+Tiny vs normal is chosen automatically based on task size - the user never needs to name a mode. Only review, cleanup, and stage mode require explicit user phrasing such as "review this session", "clean up", or "stage the old code".
 
 Tiny mode:
 - Use for small changes.

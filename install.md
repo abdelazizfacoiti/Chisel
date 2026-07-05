@@ -50,10 +50,10 @@ Use a tag-pinned GitHub install like `github:abdelazizfacoiti/Chisel#v0.2.0` for
 - `--doctor` checks source files and the target repo for common install issues.
 - `--provider <provider|all>` narrows `doctor` checks.
 - `status [session-id]` scans `.chisel/` receipts and current repo markers.
-- `verify <session-id>` audits whether a session stayed markers-only by checking markers, git diff, and best-effort syntax for touched files.
-- `cleanup <session-id>` previews removal of exact session marker lines.
-- `cleanup <session-id> --apply` removes both lines of a standalone marker block containing `CHISEL:<session-id>`.
-- `cleanup <session-id> --apply --discard-staged` deletes staged old-code blocks instead of restoring them.
+- `verify [session-id]` audits whether a session stayed markers-only by checking markers, git diff, and best-effort syntax for touched files.
+- `cleanup [session-id]` previews removal of exact session marker lines.
+- `cleanup [session-id] --apply` removes both lines of a standalone marker block containing `CHISEL:<session-id>`.
+- `cleanup [session-id] --apply --discard-staged` deletes staged old-code blocks instead of restoring them.
 
 Provider ids: `copilot`, `codex`, `claude`, `gemini`, `cursor`, `opencode`.
 
@@ -97,12 +97,15 @@ npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- status 20260704153000-a1b2c3
 Audit a marker pass:
 
 ```bash
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- verify
 npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- verify 20260704153000-a1b2c3
 ```
 
 Preview and apply cleanup:
 
 ```bash
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- cleanup
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- cleanup --apply
 npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- cleanup 20260704153000-a1b2c3
 npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- cleanup 20260704153000-a1b2c3 --apply
 ```
@@ -138,12 +141,18 @@ Install:
 npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only codex
 ```
 
-Use one of:
+Use:
 
 ```text
+use Chisel for this task: improve the checkout form validation
+```
+
+Optional shortcuts:
+
+```text
+/chisel improve the checkout form validation
 $chisel improve the checkout form validation
 /skills
-use Chisel for this task: improve the checkout form validation
 ```
 
 If your Codex build surfaces repo prompt files, you can also use:
@@ -181,7 +190,13 @@ Files:
 .github/prompts/chisel.prompt.md
 ```
 
-In VS Code Copilot Chat, the reliable path is plain language such as `Use Chisel for this task: improve the checkout form validation`. If your Copilot surface exposes prompt files, you can also select `chisel.prompt.md` from the prompt or command picker.
+Use:
+
+```text
+Use Chisel for this task: improve the checkout form validation
+```
+
+Optional shortcut: if your Copilot surface exposes prompt files, select `chisel.prompt.md` from the prompt or command picker.
 
 ## Claude Code
 
@@ -201,6 +216,12 @@ CLAUDE.md
 Use:
 
 ```text
+Use Chisel for this task: improve the checkout form validation
+```
+
+Optional shortcut:
+
+```text
 /chisel improve the checkout form validation
 ```
 
@@ -215,7 +236,7 @@ npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only gemini
 Then say:
 
 ```text
-use Chisel for this task: improve the checkout form validation
+Use Chisel for this task: improve the checkout form validation
 ```
 
 ## Cursor
@@ -229,7 +250,7 @@ npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only cursor
 Then say:
 
 ```text
-use Chisel for this task: improve the checkout form validation
+Use Chisel for this task: improve the checkout form validation
 ```
 
 ## opencode
@@ -243,7 +264,7 @@ npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only opencode
 Then say:
 
 ```text
-use Chisel for this task: improve the checkout form validation
+Use Chisel for this task: improve the checkout form validation
 ```
 
 ## Manual Copy

@@ -8,6 +8,14 @@
 
 Plan tight. Mark intent. Let inline completion draft. Review every line.
 
+## Quickstart
+
+```bash
+npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only <your-tool>
+```
+
+Then just talk to your AI coding tool normally: "use Chisel for this task: <what you want>." Say "yes" to approve the plan - that only inserts TODO markers, it does not write the feature. Implement each marker yourself or with inline completion, then run `chisel cleanup` when you're done.
+
 Chisel is an instruction and command pack for AI coding tools. It helps engineers use fewer chat-agent tokens and keep more control by moving from "agent writes the whole feature" to "agent plans, places precise TODO markers, then stops."
 
 The chat agent does the high-leverage work: understand the task, inspect the repo, produce a small plan, and place concrete inline markers. GitHub Copilot or another inline completion engine can draft from those markers, or you can implement them by hand. You review every generated line either way.
@@ -30,7 +38,7 @@ Plan ready:
 2. Show inline error message.
 3. Disable submit while invalid.
 
-Approve marker pass?
+Approve marker pass? (this only places comments, not code)
 ```
 
 After approval, the agent should place markers near the relevant code:
@@ -117,6 +125,8 @@ AI plans. You decide how the code gets written.
 
 Chisel v0.2 works through provider instruction files plus local trust-layer commands. Marker placement still depends on how well the active agent follows those instructions.
 
+Tiny vs normal marker passes are chosen automatically based on task size; you do not need to ask for either one by name. The only user-triggered mode switches are explicit requests like "review this session", "clean up", or "stage the old code".
+
 - Plan-first workflow: agent creates a short implementation plan and asks for approval before editing.
 - Marker insertion workflow: the agent is instructed to insert tiny language-native TODO comments at relevant code locations after approval.
 - Stop-before-code rule: agent must not write the full implementation unless you explicitly leave Chisel mode.
@@ -135,12 +145,14 @@ Chisel v0.2 works through provider instruction files plus local trust-layer comm
 
 | Tool | Installed files | How to invoke |
 |---|---|---|
-| Codex | `AGENTS.md`, `.codex/config.toml`, `.codex/prompts/chisel.md`, `.codex-plugin/plugin.json`, `.agents/skills/chisel/SKILL.md` | `$chisel`, `/skills`, or "use Chisel"; if repo prompts are surfaced, `/chisel` |
-| GitHub Copilot | `.github/copilot-instructions.md`, `.github/prompts/chisel.prompt.md` | "Use Chisel for this task: ..."; if prompt files are surfaced, select `chisel.prompt.md` |
-| Claude Code | `CLAUDE.md`, `.claude/commands/chisel.md` | `/chisel <task>` |
-| Gemini CLI | `GEMINI.md` | "use Chisel" |
-| Cursor | `.cursor/rules/chisel.mdc` | "use Chisel" |
-| opencode | `.opencode/AGENTS.md` | "use Chisel" |
+| Codex | `AGENTS.md`, `.codex/config.toml`, `.codex/prompts/chisel.md`, `.codex-plugin/plugin.json`, `.agents/skills/chisel/SKILL.md` | `"Use Chisel for this task: ..."` |
+| GitHub Copilot | `.github/copilot-instructions.md`, `.github/prompts/chisel.prompt.md` | `"Use Chisel for this task: ..."` |
+| Claude Code | `CLAUDE.md`, `.claude/commands/chisel.md` | `"Use Chisel for this task: ..."` |
+| Gemini CLI | `GEMINI.md` | `"Use Chisel for this task: ..."` |
+| Cursor | `.cursor/rules/chisel.mdc` | `"Use Chisel for this task: ..."` |
+| opencode | `.opencode/AGENTS.md` | `"Use Chisel for this task: ..."` |
+
+Shortcuts where supported: `/chisel <task>` in Claude Code and Codex (if repo prompts are surfaced), `$chisel` and `/skills` in Codex, `chisel.prompt.md` in the Copilot picker.
 
 Advanced provider notes, prompt-path details, and compatibility notes live in [docs/ADVANCED.md](./docs/ADVANCED.md).
 
@@ -150,16 +162,34 @@ Show active receipts and markers:
 
 ```bash
 chisel status
+```
+
+If you have more than one session, pass the id explicitly:
+
+```bash
 chisel status 20260704153000-a1b2c3
 ```
 
 Audit a marker pass deterministically:
 
 ```bash
+chisel verify
+```
+
+If you have more than one session, pass the id explicitly:
+
+```bash
 chisel verify 20260704153000-a1b2c3
 ```
 
 Preview cleanup, then apply it:
+
+```bash
+chisel cleanup
+chisel cleanup --apply
+```
+
+If you have more than one session, pass the id explicitly:
 
 ```bash
 chisel cleanup 20260704153000-a1b2c3
