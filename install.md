@@ -53,6 +53,7 @@ Use a tag-pinned GitHub install like `github:abdelazizfacoiti/Chisel#v0.2.0` for
 - `verify <session-id>` audits whether a session stayed markers-only by checking markers, git diff, and best-effort syntax for touched files.
 - `cleanup <session-id>` previews removal of exact session marker lines.
 - `cleanup <session-id> --apply` removes both lines of a standalone marker block containing `CHISEL:<session-id>`.
+- `cleanup <session-id> --apply --discard-staged` deletes staged old-code blocks instead of restoring them.
 
 Provider ids: `copilot`, `codex`, `claude`, `gemini`, `cursor`, `opencode`.
 
@@ -106,20 +107,20 @@ npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- cleanup 20260704153000-a1b2c3
 npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- cleanup 20260704153000-a1b2c3 --apply
 ```
 
-Cleanup is literal: dry-run previews matching lines, and `--apply` removes both lines of a standalone marker block containing the exact `CHISEL:<session-id>` string. Inline code+marker lines are warned and skipped for manual cleanup. `npx ... -- verify <session-id>` is the session audit command; `npm run verify` is only for Chisel repo development.
+Cleanup is literal: dry-run previews matching lines, and `--apply` removes both lines of a standalone marker block containing the exact `CHISEL:<session-id>` string. Inline code+marker lines are warned and skipped for manual cleanup. If a session used opt-in stage mode, cleanup restores staged code by default. Add `--discard-staged` only when you want to delete the staged old-code block instead. `npx ... -- verify <session-id>` is the session audit command; `npm run verify` is only for Chisel repo development.
 
 ## What Gets Installed
 
 | Provider | Files |
 |---|---|
-| `codex` | `AGENTS.md`, `.codex/config.toml`, `.agents/skills/chisel/SKILL.md` |
+| `codex` | `AGENTS.md`, `.codex/config.toml`, `.codex/prompts/chisel.md`, `.codex-plugin/plugin.json`, `.agents/skills/chisel/SKILL.md` |
 | `copilot` | `.github/copilot-instructions.md`, `.github/prompts/chisel.prompt.md` |
 | `claude` | `CLAUDE.md`, `.claude/commands/chisel.md` |
 | `gemini` | `GEMINI.md` |
 | `cursor` | `.cursor/rules/chisel.mdc` |
 | `opencode` | `.opencode/AGENTS.md` |
 
-The repo also includes `.codex-plugin/plugin.json` for packaging Chisel as a Codex plugin.
+The repo also includes `.codex-plugin/plugin.json` so Codex installs have matching plugin metadata in the target repo.
 
 ## Codex
 
@@ -127,6 +128,8 @@ Codex reusable workflows are skills. Chisel installs a repo skill here:
 
 ```text
 .agents/skills/chisel/SKILL.md
+.codex/prompts/chisel.md
+.codex-plugin/plugin.json
 ```
 
 Install:
@@ -138,6 +141,7 @@ npx -y github:abdelazizfacoiti/Chisel#v0.2.0 -- install --only codex
 Use one of:
 
 ```text
+/chisel improve the checkout form validation
 $chisel improve the checkout form validation
 /skills
 use Chisel for this task: improve the checkout form validation
@@ -155,7 +159,7 @@ Restart Codex, then invoke:
 /prompts:chisel improve the checkout form validation
 ```
 
-Important: Chisel does not claim a native repo-local `/chisel` command in Codex. Codex custom prompts are user-local and deprecated.
+Important: repo-local `/chisel` depends on Codex surfacing repo prompt files after restart. If your build does not show it yet, use `$chisel` or `/skills`. The user-local prompt installed by `--with-codex-prompt` is still available as a fallback via `/prompts:chisel`.
 
 ## GitHub Copilot
 
@@ -250,6 +254,8 @@ For example, for Codex:
 ```bash
 rm -rf .agents/skills/chisel
 rm -f .codex/config.toml
+rm -f .codex/prompts/chisel.md
+rm -f .codex-plugin/plugin.json
 rm -f AGENTS.md
 ```
 

@@ -61,6 +61,7 @@ Chisel v0.2 works through provider instruction files plus local trust-layer comm
 - Deterministic status: `chisel status [session-id]` scans receipts and current repo markers.
 - Deterministic per-session audit: `chisel verify <session-id>` checks that the pass stayed markers-only, inspects git diff in touched files, and runs best-effort syntax checks.
 - Safe cleanup command: `chisel cleanup <session-id>` previews exact marker removal, and `--apply` removes both lines of a standalone marker block containing `CHISEL:<session-id>`.
+- Opt-in stage mode: if you explicitly ask to stage old code, Chisel can comment out a replaceable block safely and `cleanup` restores it by default.
 - Provider doctor: `chisel doctor --provider all` checks installed provider files and reports missing or stale files.
 - Provider install pack: installer can drop the right instruction/command files for Codex, GitHub Copilot, Claude Code, Gemini, Cursor, and opencode.
 - Codex plugin metadata: `.codex-plugin/plugin.json` is included for packaging Chisel as an installable Codex plugin later.
@@ -138,14 +139,14 @@ Session notes are local by default. Consider adding `.chisel/` to `.gitignore` u
 
 | Tool | Installed files | How to invoke |
 |---|---|---|
-| Codex | `AGENTS.md`, `.codex/config.toml`, `.agents/skills/chisel/SKILL.md` | `$chisel`, `/skills`, or "use Chisel" |
+| Codex | `AGENTS.md`, `.codex/config.toml`, `.codex/prompts/chisel.md`, `.codex-plugin/plugin.json`, `.agents/skills/chisel/SKILL.md` | `/chisel`, `$chisel`, `/skills`, or "use Chisel" |
 | GitHub Copilot | `.github/copilot-instructions.md`, `.github/prompts/chisel.prompt.md` | Prompt file / command picker where supported |
 | Claude Code | `CLAUDE.md`, `.claude/commands/chisel.md` | `/chisel <task>` |
 | Gemini CLI | `GEMINI.md` | "use Chisel" |
 | Cursor | `.cursor/rules/chisel.mdc` | "use Chisel" |
 | opencode | `.opencode/AGENTS.md` | "use Chisel" |
 
-Codex note: documented reusable workflows are skills. Repo-local `/chisel` is not the Codex path. Use `$chisel` or `/skills`. If you install `--with-codex-prompt`, restart Codex and invoke `/prompts:chisel`.
+Codex note: Chisel now installs both the repo skill and a repo-local `.codex/prompts/chisel.md`, so `/chisel` should be available after restart in Codex builds that surface repo prompts. `$chisel` and `/skills` still work as fallbacks. `--with-codex-prompt` also installs the user-local deprecated prompt at `~/.codex/prompts/chisel.md`.
 
 Plugin note: Chisel includes `.codex-plugin/plugin.json` with `skills: "./skills/"` so the same skill can be packaged as a Codex plugin.
 
@@ -171,6 +172,8 @@ chisel cleanup 20260704153000-a1b2c3
 chisel cleanup 20260704153000-a1b2c3 --apply
 ```
 
+If you explicitly asked Chisel to stage old code, `chisel cleanup <session-id>` restores the staged block by default. Pass `--discard-staged` only when you want the staged old code deleted instead of restored.
+
 Check installed provider files:
 
 ```bash
@@ -178,6 +181,16 @@ chisel doctor --provider all
 ```
 
 `status` scans the repo literally. If your docs contain Chisel marker examples, those examples can appear as markers. `verify` is the per-session audit command. `npm run verify` is the repo's own test/check script. `cleanup` removes paired standalone marker lines, and if a marker was appended to code on the same line it is skipped with a warning for manual cleanup.
+
+## Stage Mode
+
+Stage mode is opt-in. Use it only when you explicitly want Chisel to mark existing code as replaceable by commenting it out safely.
+
+- Default Chisel behavior is still markers only. Working code stays untouched unless you ask to stage it.
+- For JS/TS/Go/Rust/Java/Python/YAML and similar line-comment surfaces, Chisel stages by turning the old lines into commented lines between `CHISEL-STAGE ... begin/end`.
+- For block-comment-only surfaces like HTML or CSS, Chisel stages only if the selected code does not already contain the same nested comment token.
+- Chisel refuses stage mode if it cannot get a clean syntax check on the staged file.
+- `chisel cleanup <session-id>` restores staged code by default. Use `--discard-staged` only when you want the old staged block deleted.
 
 ## Troubleshooting
 

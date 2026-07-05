@@ -15,7 +15,9 @@ const {
   parseMarkerBlock,
   parseMarkerLine,
   scanMarkers,
+  stageBlock,
   status,
+  unstageBlock,
   verifySession,
 } = require('../lib/chisel');
 
@@ -104,6 +106,9 @@ test('scanMarkers returns active markers and skips ignored paths', () => {
     'function submit() {',
     '  // CHISEL:test-session item-1',
     '  // TODO: Add validation guard.',
+    '  // CHISEL-STAGE:test-session item-1 begin',
+    '  //   return true;',
+    '  // CHISEL-STAGE:test-session item-1 end',
     '}',
   ].join('\n'));
   writeFile(repo, 'node_modules/pkg/index.js', [
@@ -113,11 +118,14 @@ test('scanMarkers returns active markers and skips ignored paths', () => {
 
   const markers = scanMarkers(repo, 'test-session');
 
-  assert.equal(markers.length, 1);
+  assert.equal(markers.length, 2);
   assert.equal(markers[0].file, 'src/form.ts');
   assert.equal(markers[0].line, 2);
   assert.equal(markers[0].instructionLine, 3);
   assert.equal(markers[0].itemId, 'item-1');
+  assert.equal(markers[1].type, 'staged');
+  assert.equal(markers[1].stageBeginLine, 4);
+  assert.equal(markers[1].stageEndLine, 6);
 });
 
 test('status combines JSON receipts with marker scan fallback', () => {
@@ -209,6 +217,8 @@ test('legacy installer command still installs Codex files', () => {
   assert.match(out.read(), /Chisel installed/);
   assert.equal(fs.existsSync(path.join(repo, 'AGENTS.md')), true);
   assert.equal(fs.existsSync(path.join(repo, '.codex/config.toml')), true);
+  assert.equal(fs.existsSync(path.join(repo, '.codex/prompts/chisel.md')), true);
+  assert.equal(fs.existsSync(path.join(repo, '.codex-plugin/plugin.json')), true);
   assert.equal(fs.existsSync(path.join(repo, '.agents/skills/chisel/SKILL.md')), true);
 });
 
@@ -226,6 +236,7 @@ test('install subcommand supports the clearer v0.2 form', () => {
 
   assert.match(out.read(), /chisel codex/);
   assert.equal(fs.existsSync(path.join(repo, 'AGENTS.md')), true);
+  assert.equal(fs.existsSync(path.join(repo, '.codex/prompts/chisel.md')), true);
 });
 
 test('installer reports stale files and provider doctor detects them', () => {
@@ -278,6 +289,97 @@ test('verify passes for a clean markers-only session', () => {
   assert.equal(receipt.verification.passed, true);
 });
 
+test('stageBlock stages a JS block and verify accepts staged-only changes', () => {
+  const repo = tempRepo();
+  initGitRepo(repo);
+  writeFile(repo, '.chisel/20260705120000-a1b2c3.json', JSON.stringify({
+    sessionId: '20260705120000-a1b2c3',
+    task: 'replace old submit logic',
+  }, null, 2));
+  writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  return true;',
+    '}',
+  ].join('\n'));
+  commitAll(repo, 'baseline');
+
+  const stageOut = outputBuffer();
+  const staged = stageBlock({
+    target: repo,
+    file: 'src/form.js',
+    startLine: 2,
+    endLine: 2,
+    sessionId: '20260705120000-a1b2c3',
+    itemId: 'item-1',
+    markerText: 'Replace old submit logic with validation-aware flow.',
+  }, stageOut.stream);
+  const content = fs.readFileSync(path.join(repo, 'src/form.js'), 'utf8');
+  const verifyOut = outputBuffer();
+  const result = verifySession({ target: repo, sessionId: '20260705120000-a1b2c3' }, verifyOut.stream);
+
+  assert.equal(staged.ok, true);
+  assert.match(content, /\/\/ CHISEL:20260705120000-a1b2c3 item-1/);
+  assert.match(content, /\/\/ CHISEL-STAGE:20260705120000-a1b2c3 item-1 begin/);
+  assert.match(content, /\/\/   return true;/);
+  assert.equal(result.pass, true);
+  assert.match(verifyOut.read(), /result: PASS/);
+});
+
+test('stageBlock refuses nested block comments in block-comment-only files', () => {
+  const repo = tempRepo();
+  writeFile(repo, 'src/styles.css', [
+    '.card {',
+    '  color: red;',
+    '  /* nested */',
+    '}',
+  ].join('\n'));
+
+  const result = stageBlock({
+    target: repo,
+    file: 'src/styles.css',
+    startLine: 1,
+    endLine: 4,
+    sessionId: '20260705120000-a1b2c3',
+    itemId: 'item-1',
+    markerText: 'Replace legacy card styling.',
+  });
+
+  assert.equal(result.ok, false);
+  assert.match(result.reason, /cannot stage: contains nested comment/);
+});
+
+test('unstageBlock restores original code exactly', () => {
+  const repo = tempRepo();
+  writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  return true;',
+    '}',
+  ].join('\n'));
+  const original = fs.readFileSync(path.join(repo, 'src/form.js'), 'utf8');
+
+  const staged = stageBlock({
+    target: repo,
+    file: 'src/form.js',
+    startLine: 2,
+    endLine: 2,
+    sessionId: '20260705120000-a1b2c3',
+    itemId: 'item-1',
+    markerText: 'Replace old submit logic with validation-aware flow.',
+  });
+  assert.equal(staged.ok, true);
+
+  const unstaged = unstageBlock({
+    target: repo,
+    file: 'src/form.js',
+    sessionId: '20260705120000-a1b2c3',
+    itemId: 'item-1',
+    apply: true,
+  });
+
+  assert.equal(unstaged.ok, true);
+  assert.equal(fs.readFileSync(path.join(repo, 'src/form.js'), 'utf8'), original);
+});
+
 test('verify fails when real code changes slip in beside markers', () => {
   const repo = tempRepo();
   initGitRepo(repo);
@@ -304,6 +406,104 @@ test('verify fails when real code changes slip in beside markers', () => {
   assert.equal(result.nonMarkerChanges.length, 1);
   assert.match(out.read(), /result: FAIL/);
   assert.match(out.read(), /real code was added or removed outside marker comments/);
+});
+
+test('verify ignores staged ranges but still catches violations outside them', () => {
+  const repo = tempRepo();
+  initGitRepo(repo);
+  writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  return true;',
+    '}',
+  ].join('\n'));
+  commitAll(repo, 'baseline');
+
+  const staged = stageBlock({
+    target: repo,
+    file: 'src/form.js',
+    startLine: 2,
+    endLine: 2,
+    sessionId: '20260705120000-a1b2c3',
+    itemId: 'item-1',
+    markerText: 'Replace old submit logic with validation-aware flow.',
+  });
+  assert.equal(staged.ok, true);
+
+  writeFile(repo, 'src/form.js', [
+    'function submitLater() {',
+    '  // CHISEL:20260705120000-a1b2c3 item-1',
+    '  // TODO: Replace old submit logic with validation-aware flow.',
+    '  // CHISEL-STAGE:20260705120000-a1b2c3 item-1 begin',
+    '  //   return true;',
+    '  // CHISEL-STAGE:20260705120000-a1b2c3 item-1 end',
+    '}',
+  ].join('\n'));
+
+  const out = outputBuffer();
+  const result = verifySession({ target: repo, sessionId: '20260705120000-a1b2c3' }, out.stream);
+
+  assert.equal(result.pass, false);
+  assert.equal(result.nonMarkerChanges.length, 1);
+  assert.match(out.read(), /result: FAIL/);
+  assert.match(out.read(), /real code was added or removed outside marker comments/);
+});
+
+test('cleanup unstages staged blocks by default and discards them when requested', () => {
+  const repo = tempRepo();
+  writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  return true;',
+    '}',
+  ].join('\n'));
+
+  const staged = stageBlock({
+    target: repo,
+    file: 'src/form.js',
+    startLine: 2,
+    endLine: 2,
+    sessionId: '20260705120000-a1b2c3',
+    itemId: 'item-1',
+    markerText: 'Replace old submit logic with validation-aware flow.',
+  });
+  assert.equal(staged.ok, true);
+
+  const out = outputBuffer();
+  const result = cleanup({ target: repo, sessionId: '20260705120000-a1b2c3', apply: true }, out.stream);
+  const restored = fs.readFileSync(path.join(repo, 'src/form.js'), 'utf8');
+
+  assert.equal(result.stagedActions.length, 1);
+  assert.match(out.read(), /unstaged src\/form\.js item-1/);
+  assert.equal(restored, [
+    'function submit() {',
+    '  return true;',
+    '}',
+  ].join('\n'));
+
+  const restaged = stageBlock({
+    target: repo,
+    file: 'src/form.js',
+    startLine: 2,
+    endLine: 2,
+    sessionId: '20260705120000-a1b2c3',
+    itemId: 'item-1',
+    markerText: 'Replace old submit logic with validation-aware flow.',
+  });
+  assert.equal(restaged.ok, true);
+
+  const discardOut = outputBuffer();
+  cleanup({
+    target: repo,
+    sessionId: '20260705120000-a1b2c3',
+    apply: true,
+    discardStaged: true,
+  }, discardOut.stream);
+  const discarded = fs.readFileSync(path.join(repo, 'src/form.js'), 'utf8');
+
+  assert.equal(discarded, [
+    'function submit() {',
+    '}',
+  ].join('\n'));
+  assert.match(discardOut.read(), /discarded src\/form\.js item-1/);
 });
 
 test('verify fails on duplicate item ids or mixed session id variants', () => {
