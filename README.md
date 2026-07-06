@@ -75,6 +75,14 @@ From the repo where you want Chisel active:
 npx -y github:abdelazizfacoiti/Chisel -- install --only codex
 ```
 
+To refresh an existing install, use the same clearer install command with `--force`:
+
+```bash
+npx -y github:abdelazizfacoiti/Chisel -- install --only codex --force
+```
+
+The older shorthand `npx -y github:abdelazizfacoiti/Chisel -- --only codex --force` still works. Chisel also accepts the `-- install --only codex --force` npx argument shape, so either form is safe; `install --only codex --force` is the preferred form for readability.
+
 For all install options, providers, flags, uninstall steps, and manual copy commands, see [install.md](./install.md).
 
 Session notes are local by default. Consider adding `.chisel/` to `.gitignore` unless your team wants to review Chisel receipts.
@@ -161,6 +169,8 @@ Advanced provider notes, prompt-path details, and compatibility notes live in [d
 ## Local Commands
 
 If `chisel` is not on PATH, run the same commands through GitHub npx, for example `npx -y github:abdelazizfacoiti/Chisel -- status`.
+
+Installing provider files does not automatically create a global `chisel` shell command. That is expected: use `chisel ...` only if you have installed or aliased it separately, otherwise use the `npx -y github:abdelazizfacoiti/Chisel -- ...` form.
 
 Show active receipts and markers:
 

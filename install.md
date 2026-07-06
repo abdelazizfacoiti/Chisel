@@ -12,6 +12,12 @@ Run from the repo where you want Chisel active:
 npx -y github:abdelazizfacoiti/Chisel -- install --only codex
 ```
 
+Refresh an existing Codex install:
+
+```bash
+npx -y github:abdelazizfacoiti/Chisel -- install --only codex --force
+```
+
 Install another provider:
 
 ```bash
@@ -25,7 +31,10 @@ Legacy shorthand still works for backward compatibility:
 
 ```bash
 npx -y github:abdelazizfacoiti/Chisel -- --only codex
+npx -y github:abdelazizfacoiti/Chisel -- --only codex --force
 ```
+
+Prefer the explicit `install --only codex --force` form for new docs and muscle memory. The shorthand installs the same provider files, and Chisel also accepts the `-- install --only codex --force` npx argument shape.
 
 Local testing from a Chisel clone:
 
@@ -84,6 +93,8 @@ npx -y github:abdelazizfacoiti/Chisel -- doctor --provider all
 ```
 
 If `chisel` is not on PATH, keep using the same `npx -y github:abdelazizfacoiti/Chisel -- <command>` form for local commands.
+
+Installing provider files does not automatically create a global `chisel` command. That is expected. Use `chisel ...` only if you have installed or aliased it separately.
 
 Inspect a Chisel session:
 

@@ -691,6 +691,24 @@ test('install subcommand supports the clearer install form', () => {
   assert.equal(fs.existsSync(path.join(repo, '.codex/prompts/chisel.md')), true);
 });
 
+test('npx-style leading separator still supports install subcommand', () => {
+  const repo = tempRepo();
+  const out = outputBuffer();
+
+  main([
+    '--',
+    'install',
+    '--only',
+    'codex',
+    '--target',
+    repo,
+  ], out.stream);
+
+  assert.match(out.read(), /chisel codex/);
+  assert.equal(fs.existsSync(path.join(repo, 'AGENTS.md')), true);
+  assert.equal(fs.existsSync(path.join(repo, '.agents/skills/chisel/SKILL.md')), true);
+});
+
 test('installer reports stale files and provider doctor detects them', () => {
   const repo = tempRepo();
   const installOut = outputBuffer();
