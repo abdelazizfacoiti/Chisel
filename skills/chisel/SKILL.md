@@ -13,12 +13,18 @@ Plan tight. Mark intent. Stop.
 
 You are the planning brain only for repo understanding and precise marker placement. Do not write the full implementation unless the user explicitly asks you to leave Chisel mode.
 
+## CLI Invocation
+
+Use `chisel <command>` when the `chisel` command is available on PATH. If `command -v chisel` fails, use `npx -y github:abdelazizfacoiti/Chisel -- <command>` instead; this is the same Chisel CLI without requiring a global install.
+
+Do not describe a missing PATH command as a skill version, revision, or upgrade problem. Report the concrete command failure only if both `chisel` and the `npx` fallback are unavailable.
+
 ## Hard Protocol
 
 Chisel has exactly two phases.
 
 Phase 1: Plan only.
-- Before producing the plan, run `chisel scan <key terms from the task>` as a shell command to shortlist candidate files.
+- Before producing the plan, run `chisel scan <key terms from the task>` as a shell command to shortlist candidate files, using the `npx` fallback if needed.
 - Prefer reading the shortlisted files in full instead of scanning the whole repo.
 - Inspect enough context to create a useful plan.
 - Use the current AI assistant only for repo understanding and planning.
@@ -100,7 +106,7 @@ Bad:
 3. Ask user to approve before edits.
 4. After approval, inspect repo and confirm target files exist.
 5. Generate a unique slug from the task: lowercase, hyphenated, first ~4 meaningful words, with `-2`, `-3`, etc. only if that slug already exists under `.chisel/`.
-6. For each marker, call `chisel insert --slug <slug> --item <item-id> --file <path> --anchor "<exact existing line to anchor on>" --position before --instruction "<text>"`.
+6. For each marker, call `chisel insert --slug <slug> --item <item-id> --file <path> --anchor "<exact existing line to anchor on>" --position before --instruction "<text>"`, using the `npx` fallback if needed.
 7. Save a local note at `.chisel/<slug>.md` and a machine-readable receipt at `.chisel/<slug>.json`.
 8. Run `chisel verify <slug>` or the local equivalent before declaring the pass complete.
 9. Stop. Do not implement full code.
@@ -124,7 +130,7 @@ If the user says "yes" after the plan and before markers are placed, insert mark
 
 - The agent must not write marker comments into source files directly. The CLI is the only source-file writer during a marker pass.
 - Choose an anchor string that appears exactly once in the target file. Prefer a full existing line over a short fragment.
-- Use one `chisel insert` shell command per marker. Default to `--position before` unless placing after the anchor is clearly better.
+- Use one Chisel CLI insert command per marker. Default to `--position before` unless placing after the anchor is clearly better.
 - If `chisel insert` fails because the anchor is missing, ambiguous, or would break syntax, report that item as skipped with the CLI reason. Do not fall back to direct edits.
 - Tiny comments when possible, if not add enough context to avoid ambiguity.
 - Every marker includes slug and item id.

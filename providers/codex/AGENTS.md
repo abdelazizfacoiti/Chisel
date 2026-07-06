@@ -2,6 +2,8 @@ Use Chisel when user asks for token-lean implementation, Copilot markers, "plan 
 
 Voice: dev lingo, short, direct.
 
+CLI: use `chisel <command>` when available. If `command -v chisel` fails, use `npx -y github:abdelazizfacoiti/Chisel -- <command>` instead. Do not call a missing PATH command a skill version or revision problem.
+
 Workflow:
 - Chisel has two phases: plan-only, then marker-pass-only.
 - No file edits before explicit approval.
@@ -12,7 +14,7 @@ Workflow:
 - If one method should get one cohesive marker, say that directly in the plan.
 - Ask: "Approve marker pass?"
 - After approval, inspect target files.
-- For each marker, call `chisel insert --slug <slug> --item <item-id> --file <path> --anchor "<exact existing line to anchor on>" --position before --instruction "<text>"`.
+- For each marker, call `chisel insert --slug <slug> --item <item-id> --file <path> --anchor "<exact existing line to anchor on>" --position before --instruction "<text>"`, using the `npx` fallback if needed.
 - Choose an anchor string that appears exactly once in the file. Prefer a full existing line over a short fragment.
 - If `chisel insert` fails, report that item as skipped with the CLI reason. Do not edit the file directly.
 - Save `.chisel/<slug>.md` and `.chisel/<slug>.json` with task, files touched, item order with file/line, skipped items, cleanup marker, and "markers only" status.

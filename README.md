@@ -11,7 +11,7 @@ Plan tight. Mark intent. Let inline completion draft. Review every line.
 ## Quickstart
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- install --only <your-tool>
+npx -y github:abdelazizfacoiti/Chisel -- install --only <your-tool>
 ```
 
 Then just talk to your AI coding tool normally: "use Chisel for this task: <what you want>." Say "yes" to approve the plan - that only inserts TODO markers, it does not write the feature. Implement each marker yourself or with inline completion, then run `chisel cleanup` when you're done.
@@ -72,7 +72,7 @@ function handleSubmit(event: FormEvent) {
 From the repo where you want Chisel active:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- install --only codex
+npx -y github:abdelazizfacoiti/Chisel -- install --only codex
 ```
 
 For all install options, providers, flags, uninstall steps, and manual copy commands, see [install.md](./install.md).
@@ -159,6 +159,8 @@ Claude Code is different from the other providers: its hook provides mechanical 
 Advanced provider notes, prompt-path details, and compatibility notes live in [docs/ADVANCED.md](./docs/ADVANCED.md).
 
 ## Local Commands
+
+If `chisel` is not on PATH, run the same commands through GitHub npx, for example `npx -y github:abdelazizfacoiti/Chisel -- status`.
 
 Show active receipts and markers:
 
@@ -286,7 +288,7 @@ If an agent starts implementing code right after you approve the marker pass, th
 Refresh the installed provider files in the target repo after upgrading Chisel:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- install --only codex --force
+npx -y github:abdelazizfacoiti/Chisel -- install --only codex --force
 ```
 
 Swap `codex` for the provider you are using.

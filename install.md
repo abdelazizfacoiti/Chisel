@@ -1,30 +1,30 @@
 # Install Chisel
 
-Chisel v0.3 is an instruction and command pack with a lightweight local trust layer. The `chisel` command installs provider files, scans sessions, previews cleanup, and checks install health.
+Chisel v0.3 is an instruction and command pack with a lightweight local trust layer. The `chisel` command installs provider files, scans passes, previews cleanup, and checks install health.
 
-Chisel session notes are local by default. Consider adding `.chisel/` to `.gitignore` unless your team wants to review Chisel receipts.
+Chisel pass manifests are local by default. Consider adding `.chisel/` to `.gitignore` unless your team wants to review Chisel receipts.
 
 ## One-Liner
 
 Run from the repo where you want Chisel active:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- install --only codex
+npx -y github:abdelazizfacoiti/Chisel -- install --only codex
 ```
 
 Install another provider:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- install --only copilot
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- install --only claude
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- install --only cursor
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- install --all
+npx -y github:abdelazizfacoiti/Chisel -- install --only copilot
+npx -y github:abdelazizfacoiti/Chisel -- install --only claude
+npx -y github:abdelazizfacoiti/Chisel -- install --only cursor
+npx -y github:abdelazizfacoiti/Chisel -- install --all
 ```
 
 Legacy shorthand still works for backward compatibility:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- --only codex
+npx -y github:abdelazizfacoiti/Chisel -- --only codex
 ```
 
 Local testing from a Chisel clone:
@@ -32,10 +32,6 @@ Local testing from a Chisel clone:
 ```bash
 node bin/chisel-install.js --only codex --target /path/to/project --dry-run
 ```
-
-## Pinning A Version
-
-Use a tag-pinned GitHub install like `github:abdelazizfacoiti/Chisel#v0.3.0` for reproducible installs and to avoid silent behavior changes when the default branch moves.
 
 ## Flags
 
@@ -72,42 +68,44 @@ If Chisel is already installed, re-run with `--force` after upgrading if you wan
 List supported providers:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- --list-providers
+npx -y github:abdelazizfacoiti/Chisel -- --list-providers
 ```
 
 Print the files for one provider:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- --print codex
+npx -y github:abdelazizfacoiti/Chisel -- --print codex
 ```
 
 Check a repo after installing:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- doctor --provider all
+npx -y github:abdelazizfacoiti/Chisel -- doctor --provider all
 ```
+
+If `chisel` is not on PATH, keep using the same `npx -y github:abdelazizfacoiti/Chisel -- <command>` form for local commands.
 
 Inspect a Chisel session:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- status
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- status add-email-validation
+npx -y github:abdelazizfacoiti/Chisel -- status
+npx -y github:abdelazizfacoiti/Chisel -- status add-email-validation
 ```
 
 Audit a marker pass:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- verify
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- verify add-email-validation
+npx -y github:abdelazizfacoiti/Chisel -- verify
+npx -y github:abdelazizfacoiti/Chisel -- verify add-email-validation
 ```
 
 Preview and apply cleanup:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- cleanup
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- cleanup --apply
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- cleanup add-email-validation
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- cleanup add-email-validation --apply
+npx -y github:abdelazizfacoiti/Chisel -- cleanup
+npx -y github:abdelazizfacoiti/Chisel -- cleanup --apply
+npx -y github:abdelazizfacoiti/Chisel -- cleanup add-email-validation
+npx -y github:abdelazizfacoiti/Chisel -- cleanup add-email-validation --apply
 ```
 
 Cleanup is literal: dry-run previews matching lines, and `--apply` removes both lines of a standalone marker block containing the exact `CHISEL:<slug>` string. Inline code+marker lines are warned and skipped for manual cleanup. If a session used opt-in stage mode, cleanup restores staged code by default. Add `--discard-staged` only when you want to delete the staged old-code block instead. `npx ... -- verify <slug>` is the session audit command; `npm run verify` is only for Chisel repo development.
@@ -138,7 +136,7 @@ Codex reusable workflows are skills. Chisel installs a repo skill here:
 Install:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- install --only codex
+npx -y github:abdelazizfacoiti/Chisel -- install --only codex
 ```
 
 Use:
@@ -164,7 +162,7 @@ If your Codex build surfaces repo prompt files, you can also use:
 Optional deprecated prompt command:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- install --only codex --with-codex-prompt
+npx -y github:abdelazizfacoiti/Chisel -- install --only codex --with-codex-prompt
 ```
 
 Restart Codex, then invoke:
@@ -180,7 +178,7 @@ Important: the reliable Codex invocation paths are `$chisel`, `/skills`, or plai
 Install:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- install --only copilot
+npx -y github:abdelazizfacoiti/Chisel -- install --only copilot
 ```
 
 Files:
@@ -203,7 +201,7 @@ Optional shortcut: if your Copilot surface exposes prompt files, select `chisel.
 Install:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- install --only claude
+npx -y github:abdelazizfacoiti/Chisel -- install --only claude
 ```
 
 Files:
@@ -232,7 +230,7 @@ Optional shortcut:
 Install:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- install --only gemini
+npx -y github:abdelazizfacoiti/Chisel -- install --only gemini
 ```
 
 Then say:
@@ -246,7 +244,7 @@ Use Chisel for this task: improve the checkout form validation
 Install:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- install --only cursor
+npx -y github:abdelazizfacoiti/Chisel -- install --only cursor
 ```
 
 Then say:
@@ -260,7 +258,7 @@ Use Chisel for this task: improve the checkout form validation
 Install:
 
 ```bash
-npx -y github:abdelazizfacoiti/Chisel#v0.3.0 -- install --only opencode
+npx -y github:abdelazizfacoiti/Chisel -- install --only opencode
 ```
 
 Then say:

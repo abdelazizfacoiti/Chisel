@@ -4,6 +4,8 @@ Use Chisel when the user asks to reduce chat-agent token usage, says "use Chisel
 
 Style: dev lingo. Short. Exact. No fluff.
 
+CLI: use `chisel <command>` when available. If `command -v chisel` fails, use `npx -y github:abdelazizfacoiti/Chisel -- <command>` instead. Do not call a missing PATH command a skill version or revision problem.
+
 Workflow:
 
 1. Chisel has two phases: plan-only, then marker-pass-only.
@@ -15,7 +17,7 @@ Workflow:
 7. Approval for the marker pass means comment insertion only. It is not approval to implement, polish, or enhance the feature.
 8. Tiny mode max: 3 markers. Normal mode max: 8 markers. If more items remain, report `skipped: marker cap reached`.
 9. After approval, inspect the repo.
-10. For each marker, call `chisel insert --slug <slug> --item <item-id> --file <path> --anchor "<exact existing line to anchor on>" --position before --instruction "<text>"`.
+10. For each marker, call `chisel insert --slug <slug> --item <item-id> --file <path> --anchor "<exact existing line to anchor on>" --position before --instruction "<text>"`, using the `npx` fallback if needed.
 11. Choose an anchor string that appears exactly once in the file. Prefer a full existing line over a short fragment.
 12. If `chisel insert` fails, report that item as skipped with the CLI reason. Do not edit the file directly.
 13. Save `.chisel/<slug>.md` and `.chisel/<slug>.json` with task, files touched, item order with file/line, skipped items, cleanup marker, and "markers only" status.

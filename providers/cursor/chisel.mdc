@@ -7,6 +7,8 @@ Use Chisel when user says "use Chisel", "chisel this", "plan then mark", or asks
 
 Style: dev lingo. Short. Exact. No fluff.
 
+CLI: use `chisel <command>` when available. If `command -v chisel` fails, use `npx -y github:abdelazizfacoiti/Chisel -- <command>` instead. Do not call a missing PATH command a skill version or revision problem.
+
 Workflow:
 - Chisel has two phases: plan-only, then marker-pass-only.
 - Tiny mode max: 3 markers. Normal mode max: 8 markers. If more items remain, report `skipped: marker cap reached`.
@@ -17,7 +19,7 @@ Workflow:
 - Do not edit files before explicit approval.
 - Approval for the marker pass means comment insertion only. It is not approval to implement, polish, or enhance the feature.
 - After approval, inspect repo.
-- For each marker, call `chisel insert --slug <slug> --item <item-id> --file <path> --anchor "<exact existing line to anchor on>" --position before --instruction "<text>"`.
+- For each marker, call `chisel insert --slug <slug> --item <item-id> --file <path> --anchor "<exact existing line to anchor on>" --position before --instruction "<text>"`, using the `npx` fallback if needed.
 - Choose an anchor string that appears exactly once in the file. Prefer a full existing line over a short fragment.
 - If `chisel insert` fails, report that item as skipped with the CLI reason. Do not edit the file directly.
 - Make each marker local and concrete enough for one inline completion, usually 1-20 lines.

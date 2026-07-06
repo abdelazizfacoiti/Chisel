@@ -2,6 +2,8 @@ Use Chisel when user says "use Chisel", "chisel this", "plan then mark", or asks
 
 Style: dev lingo. Short. Exact. No fluff.
 
+CLI: use `chisel <command>` when available. If `command -v chisel` fails, use `npx -y github:abdelazizfacoiti/Chisel -- <command>` instead. Do not call a missing PATH command a skill version or revision problem.
+
 Claude Code enforcement: this provider installs `.claude/hooks/chisel-guard.js` and registers it as a PreToolUse hook. During an active Chisel pass, direct Edit/Write/MultiEdit calls to files listed in the pass manifest are mechanically denied; use `chisel insert` to place markers.
 
 Process:
