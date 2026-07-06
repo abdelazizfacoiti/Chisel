@@ -10,11 +10,15 @@ const test = require('node:test');
 const {
   cleanup,
   doctor,
+  generateSlug,
+  insertMarker,
   isIgnoredPath,
   main,
   parseMarkerBlock,
   parseMarkerLine,
   scanMarkers,
+  scanRepo,
+  setPassActive,
   stageBlock,
   status,
   unstageBlock,
@@ -100,6 +104,17 @@ test('isIgnoredPath skips generated, vendor, build, binary, and lock-file paths'
   assert.equal(isIgnoredPath('src/form.ts'), false);
 });
 
+test('generateSlug derives a readable slug and appends a numeric suffix on collision', () => {
+  const repo = tempRepo();
+  writeFile(repo, '.chisel/add-email-validation.json', JSON.stringify({
+    slug: 'add-email-validation',
+    task: 'add email validation',
+    items: [],
+  }, null, 2));
+
+  assert.equal(generateSlug(repo, 'Add email validation'), 'add-email-validation-2');
+});
+
 test('scanMarkers returns active markers and skips ignored paths', () => {
   const repo = tempRepo();
   writeFile(repo, 'src/form.ts', [
@@ -126,6 +141,338 @@ test('scanMarkers returns active markers and skips ignored paths', () => {
   assert.equal(markers[1].type, 'staged');
   assert.equal(markers[1].stageBeginLine, 4);
   assert.equal(markers[1].stageEndLine, 6);
+});
+
+test('scanRepo returns compact matches for a query', () => {
+  const repo = tempRepo();
+  writeFile(repo, 'src/form.js', [
+    'function validateEmail(value) {',
+    '  return value.includes("@");',
+    '}',
+  ].join('\n'));
+  const out = outputBuffer();
+
+  const result = scanRepo({ target: repo, query: 'validateEmail' }, out.stream);
+
+  assert.equal(result.matches.length, 1);
+  assert.match(result.matches[0], /src\/form\.js:1:function validateEmail/);
+  assert.match(out.read(), /Chisel scan: validateEmail/);
+});
+
+test('scanRepo handles zero matches gracefully', () => {
+  const repo = tempRepo();
+  writeFile(repo, 'src/form.js', 'const ok = true;\n');
+  const out = outputBuffer();
+
+  const result = scanRepo({ target: repo, query: 'missingTerm' }, out.stream);
+
+  assert.deepEqual(result.matches, []);
+  assert.match(out.read(), /No matches found\./);
+});
+
+test('insertMarker inserts a marker at a unique anchor and returns a diff hunk', () => {
+  const repo = tempRepo();
+  const file = writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  return true;',
+    '}',
+  ].join('\n'));
+
+  const result = insertMarker({
+    target: repo,
+    file: 'src/form.js',
+    anchor: '  return true;',
+    position: 'before',
+    sessionSlug: 'add-validation',
+    itemId: 'item-1',
+    instruction: 'Add email validation before submit.',
+  });
+  const content = fs.readFileSync(file, 'utf8');
+
+  assert.equal(result.success, true);
+  assert.match(content, /\/\/ CHISEL:add-validation item-1/);
+  assert.match(content, /\/\/ TODO: Add email validation before submit\./);
+  assert.match(result.diffHunk, /\+  \/\/ CHISEL:add-validation item-1/);
+  assert.match(result.diffHunk, /\+  \/\/ TODO: Add email validation before submit\./);
+});
+
+test('insertMarker fails when an anchor appears zero times', () => {
+  const repo = tempRepo();
+  const file = writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  return true;',
+    '}',
+  ].join('\n'));
+
+  const result = insertMarker({
+    target: repo,
+    file: 'src/form.js',
+    anchor: 'missing anchor',
+    position: 'before',
+    sessionSlug: 'add-validation',
+    itemId: 'item-1',
+    instruction: 'Add email validation before submit.',
+  });
+
+  assert.equal(result.success, false);
+  assert.match(result.error, /anchor not found/);
+  assert.doesNotMatch(fs.readFileSync(file, 'utf8'), /CHISEL:add-validation/);
+});
+
+test('insertMarker fails when an anchor appears multiple times', () => {
+  const repo = tempRepo();
+  const file = writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  return true;',
+    '}',
+    'function submitAgain() {',
+    '  return true;',
+    '}',
+  ].join('\n'));
+
+  const result = insertMarker({
+    target: repo,
+    file: 'src/form.js',
+    anchor: '  return true;',
+    position: 'before',
+    sessionSlug: 'add-validation',
+    itemId: 'item-1',
+    instruction: 'Add email validation before submit.',
+  });
+
+  assert.equal(result.success, false);
+  assert.match(result.error, /anchor is ambiguous/);
+  assert.doesNotMatch(fs.readFileSync(file, 'utf8'), /CHISEL:add-validation/);
+});
+
+test('insertMarker refuses a change that would break syntax and leaves the file unchanged', () => {
+  const repo = tempRepo();
+  const original = [
+    'value = \\',
+    '  1',
+  ].join('\n');
+  const file = writeFile(repo, 'src/value.py', original);
+
+  const result = insertMarker({
+    target: repo,
+    file: 'src/value.py',
+    anchor: 'value = \\',
+    position: 'after',
+    sessionSlug: 'add-validation',
+    itemId: 'item-1',
+    instruction: 'Add validation.',
+  });
+
+  assert.equal(result.success, false);
+  assert.match(result.error, /syntax check failed/);
+  assert.equal(fs.readFileSync(file, 'utf8'), original);
+});
+
+test('insertMarker CLI prints the applied diff hunk', () => {
+  const repo = tempRepo();
+  writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  return true;',
+    '}',
+  ].join('\n'));
+  const out = outputBuffer();
+
+  const result = main([
+    'insert',
+    '--target',
+    repo,
+    '--slug',
+    'add-validation',
+    '--item',
+    'item-1',
+    '--file',
+    'src/form.js',
+    '--anchor',
+    '  return true;',
+    '--position',
+    'before',
+    '--instruction',
+    'Add email validation before submit.',
+  ], out.stream);
+
+  assert.equal(result.success, true);
+  assert.match(out.read(), /Chisel insert item-1/);
+  assert.match(out.read(), /\+  \/\/ CHISEL:add-validation item-1/);
+});
+
+test('insertMarker writes a lightweight manifest and stages the touched file in git repos', () => {
+  const repo = tempRepo();
+  initGitRepo(repo);
+  writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  return true;',
+    '}',
+  ].join('\n'));
+  commitAll(repo, 'baseline');
+
+  const result = insertMarker({
+    target: repo,
+    file: 'src/form.js',
+    anchor: '  return true;',
+    position: 'before',
+    sessionSlug: 'add-validation',
+    itemId: 'item-1',
+    instruction: 'Add email validation before submit.',
+    task: 'add validation',
+  });
+  const manifest = JSON.parse(fs.readFileSync(path.join(repo, '.chisel/add-validation.json'), 'utf8'));
+  const staged = run('git', ['diff', '--cached', '--name-only'], repo);
+
+  assert.equal(result.success, true);
+  assert.equal(manifest.slug, 'add-validation');
+  assert.equal(manifest.task, 'add validation');
+  assert.equal(manifest.items.length, 1);
+  assert.equal(manifest.items[0].itemId, 'item-1');
+  assert.match(manifest.items[0].diffHunk, /\+  \/\/ CHISEL:add-validation item-1/);
+  assert.match(staged, /src\/form\.js/);
+});
+
+test('verify reads git diff --cached and catches an out-of-band staged edit', () => {
+  const repo = tempRepo();
+  initGitRepo(repo);
+  writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  return true;',
+    '}',
+  ].join('\n'));
+  commitAll(repo, 'baseline');
+
+  insertMarker({
+    target: repo,
+    file: 'src/form.js',
+    anchor: '  return true;',
+    position: 'before',
+    sessionSlug: 'add-validation',
+    itemId: 'item-1',
+    instruction: 'Add email validation before submit.',
+  });
+  writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  // CHISEL:add-validation item-1',
+    '  // TODO: Add email validation before submit.',
+    '  const changed = true;',
+    '  return changed;',
+    '}',
+  ].join('\n'));
+  run('git', ['add', 'src/form.js'], repo);
+  const out = outputBuffer();
+
+  const result = verifySession({ target: repo, sessionId: 'add-validation' }, out.stream);
+
+  assert.equal(result.pass, false);
+  assert.equal(result.nonMarkerChanges.length, 1);
+  assert.match(out.read(), /real code was added or removed outside recorded marker hunks/);
+});
+
+test('cleanup reverse-applies a manifest marker hunk successfully', () => {
+  const repo = tempRepo();
+  initGitRepo(repo);
+  const original = [
+    'function submit() {',
+    '  return true;',
+    '}',
+  ].join('\n');
+  writeFile(repo, 'src/form.js', original);
+  commitAll(repo, 'baseline');
+  insertMarker({
+    target: repo,
+    file: 'src/form.js',
+    anchor: '  return true;',
+    position: 'before',
+    sessionSlug: 'add-validation',
+    itemId: 'item-1',
+    instruction: 'Add email validation before submit.',
+  });
+  const out = outputBuffer();
+
+  const result = cleanup({ target: repo, sessionId: 'add-validation', apply: true }, out.stream);
+  const content = fs.readFileSync(path.join(repo, 'src/form.js'), 'utf8');
+  const staged = run('git', ['diff', '--cached', '--name-only'], repo);
+
+  assert.equal(result.changes.length, 1);
+  assert.equal(result.refused.length, 0);
+  assert.equal(content, original);
+  assert.equal(staged, '');
+  assert.match(out.read(), /reverse item-1/);
+});
+
+test('cleanup refuses manifest cleanup when the recorded marker block changed', () => {
+  const repo = tempRepo();
+  writeFile(repo, 'src/form.js', [
+    'function submit() {',
+    '  return true;',
+    '}',
+  ].join('\n'));
+  insertMarker({
+    target: repo,
+    file: 'src/form.js',
+    anchor: '  return true;',
+    position: 'before',
+    sessionSlug: 'add-validation',
+    itemId: 'item-1',
+    instruction: 'Add email validation before submit.',
+  });
+  const changed = fs.readFileSync(path.join(repo, 'src/form.js'), 'utf8')
+    .replace('Add email validation before submit.', 'Changed marker text.');
+  fs.writeFileSync(path.join(repo, 'src/form.js'), changed, 'utf8');
+  const out = outputBuffer();
+
+  const result = cleanup({ target: repo, sessionId: 'add-validation', apply: true }, out.stream);
+
+  assert.equal(result.changes.length, 0);
+  assert.equal(result.refused.length, 1);
+  assert.match(out.read(), /recorded marker block no longer matches/);
+  assert.match(fs.readFileSync(path.join(repo, 'src/form.js'), 'utf8'), /Changed marker text/);
+});
+
+test('chisel pass start and end toggle manifest active state', () => {
+  const repo = tempRepo();
+  const out = outputBuffer();
+
+  const started = setPassActive({
+    target: repo,
+    action: 'start',
+    slug: 'add-validation',
+    task: 'add validation',
+  }, out.stream);
+  const ended = setPassActive({
+    target: repo,
+    action: 'end',
+    slug: 'add-validation',
+  }, out.stream);
+  const manifest = JSON.parse(fs.readFileSync(path.join(repo, '.chisel/add-validation.json'), 'utf8'));
+
+  assert.equal(started.active, true);
+  assert.equal(ended.active, false);
+  assert.equal(manifest.active, false);
+  assert.match(out.read(), /Chisel pass start: add-validation/);
+  assert.match(out.read(), /Chisel pass end: add-validation/);
+});
+
+test('Claude hook script has valid JavaScript syntax', () => {
+  run('node', ['--check', 'providers/claude/.claude/hooks/chisel-guard.js'], path.resolve(__dirname, '..'));
+});
+
+test('Claude install registers the Chisel guard hook', () => {
+  const repo = tempRepo();
+  const out = outputBuffer();
+
+  main(['install', '--only', 'claude', '--target', repo], out.stream);
+  const settings = JSON.parse(fs.readFileSync(path.join(repo, '.claude/settings.json'), 'utf8'));
+
+  assert.equal(fs.existsSync(path.join(repo, '.claude/hooks/chisel-guard.js')), true);
+  assert.equal(
+    settings.hooks.PreToolUse.some((group) => (
+      group.matcher === 'Edit|Write|MultiEdit'
+      && group.hooks.some((hook) => hook.command === 'node ${CLAUDE_PROJECT_DIR}/.claude/hooks/chisel-guard.js')
+    )),
+    true,
+  );
 });
 
 test('status combines JSON receipts with marker scan fallback', () => {
@@ -155,7 +502,7 @@ test('status combines JSON receipts with marker scan fallback', () => {
   assert.match(out.read(), /src\/form\.ts:1\/2 item-1 Add validation guard\./);
 });
 
-test('status with no session id auto-selects the only session', () => {
+test('status with no slug auto-selects the only pass', () => {
   const repo = tempRepo();
   writeFile(repo, '.chisel/20260704153000-a1b2c3.json', JSON.stringify({
     sessionId: '20260704153000-a1b2c3',
@@ -171,12 +518,12 @@ test('status with no session id auto-selects the only session', () => {
   const result = status({ target: repo }, out.stream);
 
   assert.deepEqual(result.sessions, ['20260704153000-a1b2c3']);
-  assert.match(out.read(), /no session id given, using latest: 20260704153000-a1b2c3/);
+  assert.match(out.read(), /no slug given, using latest: 20260704153000-a1b2c3/);
   assert.match(out.read(), /Chisel status/);
   assert.match(out.read(), /session: 20260704153000-a1b2c3/);
 });
 
-test('status with no session id lists multiple sessions and does not guess', () => {
+test('status with no slug lists multiple passes and does not guess', () => {
   const repo = tempRepo();
   writeFile(repo, '.chisel/20260704153000-a1b2c3.json', JSON.stringify({
     sessionId: '20260704153000-a1b2c3',
@@ -193,20 +540,20 @@ test('status with no session id lists multiple sessions and does not guess', () 
   const result = status({ target: repo }, out.stream);
 
   assert.deepEqual(result.sessions, ['20260705140000-z9y8x7', '20260704153000-a1b2c3']);
-  assert.match(out.read(), /Multiple Chisel sessions found in this repo\. Pass one explicitly:/);
-  assert.match(out.read(), /20260705140000-z9y8x7  tweak checkout  2 files/);
-  assert.match(out.read(), /20260704153000-a1b2c3  add validation  1 file/);
+  assert.match(out.read(), /Multiple Chisel passes found in this repo\. Pass one explicitly:/);
+  assert.match(out.read(), /20260705140000-z9y8x7  tweak checkout  2 items/);
+  assert.match(out.read(), /20260704153000-a1b2c3  add validation  1 item/);
   assert.doesNotMatch(out.read(), /Chisel status/);
 });
 
-test('status with no session id and no sessions prints a clear message', () => {
+test('status with no slug and no passes prints a clear message', () => {
   const repo = tempRepo();
   const out = outputBuffer();
 
   const result = status({ target: repo }, out.stream);
 
   assert.deepEqual(result.sessions, []);
-  assert.match(out.read(), /No Chisel sessions found in this repo\./);
+  assert.match(out.read(), /No active Chisel passes found in this repo\./);
 });
 
 test('cleanup dry-run reports markers without editing files', () => {
@@ -228,7 +575,7 @@ test('cleanup dry-run reports markers without editing files', () => {
   assert.match(fs.readFileSync(file, 'utf8'), /CHISEL:20260704153000-a1b2c3/);
 });
 
-test('cleanup with no session id auto-selects the only session', () => {
+test('cleanup with no slug auto-selects the only pass', () => {
   const repo = tempRepo();
   writeFile(repo, '.chisel/20260704153000-a1b2c3.json', JSON.stringify({
     sessionId: '20260704153000-a1b2c3',
@@ -243,12 +590,12 @@ test('cleanup with no session id auto-selects the only session', () => {
   const result = cleanup({ target: repo, apply: false }, out.stream);
 
   assert.equal(result.changes.length, 1);
-  assert.match(out.read(), /no session id given, using latest: 20260704153000-a1b2c3/);
+  assert.match(out.read(), /no slug given, using latest: 20260704153000-a1b2c3/);
   assert.match(out.read(), /session: 20260704153000-a1b2c3/);
   assert.match(fs.readFileSync(file, 'utf8'), /CHISEL:20260704153000-a1b2c3/);
 });
 
-test('cleanup with no session id lists multiple sessions and does not guess', () => {
+test('cleanup with no slug lists multiple passes and does not guess', () => {
   const repo = tempRepo();
   writeFile(repo, '.chisel/20260704153000-a1b2c3.json', JSON.stringify({
     sessionId: '20260704153000-a1b2c3',
@@ -265,18 +612,18 @@ test('cleanup with no session id lists multiple sessions and does not guess', ()
   const result = cleanup({ target: repo, apply: false }, out.stream);
 
   assert.equal(result.changes.length, 0);
-  assert.match(out.read(), /Multiple Chisel sessions found in this repo\. Pass one explicitly:/);
-  assert.match(out.read(), /Run `chisel cleanup <session-id>`\./);
+  assert.match(out.read(), /Multiple Chisel passes found in this repo\. Pass one explicitly:/);
+  assert.match(out.read(), /Run `chisel cleanup <slug>`\./);
 });
 
-test('cleanup with no session id and no sessions prints a clear message', () => {
+test('cleanup with no slug and no passes prints a clear message', () => {
   const repo = tempRepo();
   const out = outputBuffer();
 
   const result = cleanup({ target: repo, apply: false }, out.stream);
 
   assert.equal(result.changes.length, 0);
-  assert.match(out.read(), /No Chisel sessions found in this repo\./);
+  assert.match(out.read(), /No active Chisel passes found in this repo\./);
 });
 
 test('cleanup removes both lines of a two-line marker and skips inline code markers', () => {
@@ -327,7 +674,7 @@ test('legacy installer command still installs Codex files', () => {
   assert.equal(fs.existsSync(path.join(repo, '.agents/skills/chisel/SKILL.md')), true);
 });
 
-test('install subcommand supports the clearer v0.2 form', () => {
+test('install subcommand supports the clearer install form', () => {
   const repo = tempRepo();
   const out = outputBuffer();
 
@@ -357,7 +704,7 @@ test('installer reports stale files and provider doctor detects them', () => {
   const result = doctor({ target: repo, provider: 'codex' }, doctorOut.stream);
 
   assert.match(secondInstallOut.read(), /skipped-stale: AGENTS\.md/);
-  assert.match(doctorOut.read(), /chisel installed version: 0\.2\.0/);
+  assert.match(doctorOut.read(), /chisel installed version: 0\.3\.0/);
   assert.match(doctorOut.read(), /target: codex AGENTS\.md stale/);
   assert.equal(result.failed > 0, true);
 });
@@ -394,7 +741,7 @@ test('verify passes for a clean markers-only session', () => {
   assert.equal(receipt.verification.passed, true);
 });
 
-test('verify with no session id auto-selects the only session', () => {
+test('verify with no slug auto-selects the only pass', () => {
   const repo = tempRepo();
   initGitRepo(repo);
   writeFile(repo, 'src/form.js', [
@@ -420,12 +767,12 @@ test('verify with no session id auto-selects the only session', () => {
   const result = verifySession({ target: repo }, out.stream);
 
   assert.equal(result.pass, true);
-  assert.match(out.read(), /no session id given, using latest: 20260704153000-a1b2c3/);
+  assert.match(out.read(), /no slug given, using latest: 20260704153000-a1b2c3/);
   assert.match(out.read(), /session: 20260704153000-a1b2c3/);
   assert.match(out.read(), /result: PASS/);
 });
 
-test('verify with no session id lists multiple sessions and does not guess', () => {
+test('verify with no slug lists multiple passes and does not guess', () => {
   const repo = tempRepo();
   writeFile(repo, '.chisel/20260704153000-a1b2c3.json', JSON.stringify({
     sessionId: '20260704153000-a1b2c3',
@@ -442,18 +789,18 @@ test('verify with no session id lists multiple sessions and does not guess', () 
   const result = verifySession({ target: repo }, out.stream);
 
   assert.equal(result.pass, false);
-  assert.match(out.read(), /Multiple Chisel sessions found in this repo\. Pass one explicitly:/);
-  assert.match(out.read(), /Run `chisel verify <session-id>`\./);
+  assert.match(out.read(), /Multiple Chisel passes found in this repo\. Pass one explicitly:/);
+  assert.match(out.read(), /Run `chisel verify <slug>`\./);
 });
 
-test('verify with no session id and no sessions prints a clear message', () => {
+test('verify with no slug and no passes prints a clear message', () => {
   const repo = tempRepo();
   const out = outputBuffer();
 
   const result = verifySession({ target: repo }, out.stream);
 
   assert.equal(result.pass, false);
-  assert.match(out.read(), /No Chisel sessions found in this repo\./);
+  assert.match(out.read(), /No active Chisel passes found in this repo\./);
 });
 
 test('stageBlock stages a JS block and verify accepts staged-only changes', () => {

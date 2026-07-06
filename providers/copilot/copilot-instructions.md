@@ -15,31 +15,33 @@ Workflow:
 7. Approval for the marker pass means comment insertion only. It is not approval to implement, polish, or enhance the feature.
 8. Tiny mode max: 3 markers. Normal mode max: 8 markers. If more items remain, report `skipped: marker cap reached`.
 9. After approval, inspect the repo.
-10. Insert tiny two-line CHISEL/TODO marker blocks at target locations.
-11. Save `.chisel/<session-id>.md` and `.chisel/<session-id>.json` with task, files touched, item order with file/line, skipped items, cleanup marker, and "markers only" status.
-12. Run `chisel verify <session-id>` or the local equivalent and include the output before declaring the marker pass complete.
-13. Stop before writing full code in the same turn.
-14. Tell user to trigger inline completion or implement by hand at each marker and review the generated code.
-15. Only use stage mode if the user explicitly asks to stage old code, and only keep the staged version if syntax check passes.
+10. For each marker, call `chisel insert --slug <slug> --item <item-id> --file <path> --anchor "<exact existing line to anchor on>" --position before --instruction "<text>"`.
+11. Choose an anchor string that appears exactly once in the file. Prefer a full existing line over a short fragment.
+12. If `chisel insert` fails, report that item as skipped with the CLI reason. Do not edit the file directly.
+13. Save `.chisel/<slug>.md` and `.chisel/<slug>.json` with task, files touched, item order with file/line, skipped items, cleanup marker, and "markers only" status.
+14. Run `chisel verify <slug>` or the local equivalent and include the output before declaring the marker pass complete.
+15. Stop before writing full code in the same turn.
+16. Tell user to trigger inline completion or implement by hand at each marker and review the generated code.
+17. Only use stage mode if the user explicitly asks to stage old code, and only keep the staged version if syntax check passes.
 
 Marker format:
 
 ```ts
-// CHISEL:<session-id> item-2
+// CHISEL:<slug> item-2
 // TODO: Add email validation before submit.
 ```
 
 Good UI marker:
 
 ```tsx
-// CHISEL:<session-id> item-4
+// CHISEL:<slug> item-4
 // TODO: Replace flat card surface with subtle border, shadow, and pressed state styles.
 ```
 
 Bad marker:
 
 ```tsx
-// CHISEL:<session-id> item-4
+// CHISEL:<slug> item-4
 // TODO: Improve card polish.
 ```
 
@@ -50,13 +52,14 @@ Rules:
 - Never insert huge prompt comments.
 - One marker should guide one local completion, usually 1-20 lines.
 - Use language-native comment syntax.
+- Do not write marker comments directly. The CLI is the only source-file writer during a marker pass.
 - Every CHISEL marker must be on its own line. Never append a marker after code on the same line.
 - Tracking line and instruction line must be adjacent, with the instruction line immediately following the tracking line.
 - The instruction line must read as a complete TODO without needing the tracking line.
 - Marker text must name the concrete code move: variable, prop, style token, branch, validation rule, component state, or test case.
 - For UI work, include concrete visual intent: spacing value, component state, hierarchy, color role, typography role, or interaction behavior.
 - Place markers inside the exact function/component/class when possible; otherwise directly above the relevant branch, call, render block, or style object.
-- Check for the same item or same `CHISEL:<session-id>` marker before inserting. Do not duplicate markers.
+- Check for the same item or same `CHISEL:<slug>` marker before calling `chisel insert`. Do not duplicate markers.
 - Use one top-of-method marker for one shared design or behavior decision. Use multiple markers inside a method only when the concerns are genuinely separate.
 - Never overwrite code.
 - Never touch generated/vendor/build folders.
@@ -64,8 +67,8 @@ Rules:
 - If a location is uncertain, skip that item and record why.
 - Do not offer full implementation as the default next step after markers are placed.
 - Never say you are "applying enhancements" or "making improvements" while still in Chisel mode.
-- If `chisel verify <session-id>` reports FAIL, say so explicitly and do not claim the pass was clean.
-- Cleanup removes only comments containing exact `CHISEL:<session-id>`.
+- If `chisel verify <slug>` reports FAIL, say so explicitly and do not claim the pass was clean.
+- Cleanup removes only comments containing exact `CHISEL:<slug>`.
 - Never wrap already-commented code in another block comment.
 
 Session note stays minimal. Do not duplicate the full marker instructions there.
@@ -73,12 +76,12 @@ Session note stays minimal. Do not duplicate the full marker instructions there.
 Comment syntax quick reference:
 | Surface | Syntax |
 |---|---|
-| JS / TS / TSX / Go / Rust / Java | `// CHISEL:<session-id> item-N`<br>`// TODO: ...` |
-| Python / YAML | `# CHISEL:<session-id> item-N`<br>`# TODO: ...` |
-| HTML / Vue template / Svelte markup | `<!-- CHISEL:<session-id> item-N -->`<br>`<!-- TODO: ... -->` |
-| CSS / SCSS | `/* CHISEL:<session-id> item-N */`<br>`/* TODO: ... */` |
-| SQL | `-- CHISEL:<session-id> item-N`<br>`-- TODO: ...` |
-| Vue / Svelte `<script>` | `// CHISEL:<session-id> item-N`<br>`// TODO: ...` |
+| JS / TS / TSX / Go / Rust / Java | `// CHISEL:<slug> item-N`<br>`// TODO: ...` |
+| Python / YAML | `# CHISEL:<slug> item-N`<br>`# TODO: ...` |
+| HTML / Vue template / Svelte markup | `<!-- CHISEL:<slug> item-N -->`<br>`<!-- TODO: ... -->` |
+| CSS / SCSS | `/* CHISEL:<slug> item-N */`<br>`/* TODO: ... */` |
+| SQL | `-- CHISEL:<slug> item-N`<br>`-- TODO: ...` |
+| Vue / Svelte `<script>` | `// CHISEL:<slug> item-N`<br>`// TODO: ...` |
 
 Limits:
 
